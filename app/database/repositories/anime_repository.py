@@ -1,0 +1,166 @@
+from dataclasses import asdict
+from uuid import UUID
+
+from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database.orm import anime_table, genres_table, studios_table
+from app.entity.anime import Anime, Genre, Studio
+from app.interface.repository.anime_repository import BaseAnimeRepository
+from app.interface.repository.exception import NotFoundError
+
+
+class AnimeSQLRepository(BaseAnimeRepository):
+    """
+    A SQL Anime repository.
+    """
+
+    def __init__(self, async_session: AsyncSession) -> None:
+        """
+        Constructor.
+
+        Args:
+            async_session (AsyncSession): SQLAlchemy async session, typically obtained
+            with DI
+        """
+
+        self.session = async_session
+
+    async def add(self, entity: Anime) -> Anime:
+        """
+        Store entity in database.
+
+        Args:
+            entity (Anime): entity to persist
+
+        Returns:
+            Anime: returns entity
+        """
+
+        self.session.add(entity)
+        await self.session.flush()
+        await self.session.refresh(entity)
+
+        return entity
+
+    async def get_by_id(self, id_: UUID) -> Anime | None:
+        """
+        Get entity by id.
+
+        Args:
+            id_ (UUID): entity's id
+
+        Returns:
+            Anime | None: return entity if found, otherwise None
+        """
+
+        return await self.session.get(Anime, id_)
+
+    async def get_by_name(self, name: str) -> Anime | None:
+        """
+        Get entity by name.
+
+        Args:
+            name (str): entity's name
+
+        Returns:
+            Anime | None: return entity if found, otherwise None
+        """
+
+        result = await self.session.execute(select(Anime).where(anime_table.c.name_en == name))
+        return result.scalar_one_or_none()
+
+    async def update(self, entity: Anime) -> Anime:
+        """Update an entity.
+
+        Args:
+            entity (Anime): entity
+
+        Raises:
+            NotFoundError: in case our entity has persistance problems
+
+        Returns:
+            Anime: updated entity
+        """
+
+        stored_entity = await self.session.get(Anime, entity.id)
+        if not stored_entity:
+            raise NotFoundError("Entity has not beed stored in database, but were marked for update.")
+
+        await self.session.flush()
+        await self.session.refresh(entity)
+
+        return entity
+
+    async def delete(self, entity: Anime) -> None:
+        """Remove entity from database.
+
+        Args:
+            entity (Anime): entity to remove
+        """
+
+        await self.session.delete(entity)
+        await self.session.flush()
+
+    async def add_genres(self, genres: list[Genre]) -> list[Genre]:
+        """Inserts new genre entities into database.
+
+        Args:
+            genres (list[Genre]): list of genres. May contain new or existing genres.
+
+        Returns:
+            list[Genre]: list of stored genres
+        """
+
+        genre_dicts = [asdict(g) for g in genres]
+
+        await self.session.execute(pg_insert(Genre).values(genre_dicts).on_conflict_do_nothing())
+
+        genre_names = [g.name for g in genres]
+
+        select_result = await self.session.execute(select(Genre).where(genres_table.c.name.in_(genre_names)))
+
+        return list(select_result.scalars().all())
+
+    async def get_all_genres(self) -> list[Genre]:
+        """Get all stored genres in database.
+
+        Returns:
+            list[Genre]: list of genres.
+        """
+
+        result = await self.session.execute(select(Genre))
+
+        return list(result.scalars().all())
+
+    async def add_studios(self, studios: list[Studio]) -> list[Studio]:
+        """Inserts new studio entities into database.
+
+        Args:
+            studios (list[Studio]): list of studios. May contain new or existing studios.
+
+        Returns:
+            list[Studio]: list of stored studios
+        """
+
+        studio_dicts = [asdict(s) for s in studios]
+
+        await self.session.execute(pg_insert(Studio).values(studio_dicts).on_conflict_do_nothing())
+
+        studio_names = [s.name for s in studios]
+
+        select_result = await self.session.execute(select(Studio).where(studios_table.c.name.in_(studio_names)))
+
+        return list(select_result.scalars().all())
+
+    async def get_all_studios(self) -> list[Studio]:
+        """Get all stored studios in database.
+
+        Returns:
+            list[Studio]: list of studios.
+        """
+
+        result = await self.session.execute(select(Studio))
+
+        return list(result.scalars().all())
