@@ -31,6 +31,14 @@ database_settings = DatabaseSettings()
 
 
 class JWTSettings(BaseSettings):
+    """
+    Configuration settings for JWT encoding and decoding.
+
+    Attributes:
+        secret_key (str): The secret key used to sign and verify the JWT.
+        algorithm (str): The cryptographic algorithm used for encoding the JWT. Defaults to "HS256".
+        access_token_expiry (int): The time in minutes before the access token expires. Defaults to 25 minutes.
+    """
 
     secret_key: str = Field(alias="JWT_SECRET_KEY")
     algorithm: str = "HS256"
