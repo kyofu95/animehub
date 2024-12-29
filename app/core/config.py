@@ -2,6 +2,13 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class CommonSettings(BaseSettings):
+    debug: bool = Field(alias="DEBUG", default=False)
+
+
+common_settings = CommonSettings()
+
+
 class DatabaseSettings(BaseSettings):
     """
     Configuration settings for database connections.
