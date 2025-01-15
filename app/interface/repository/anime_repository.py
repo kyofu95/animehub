@@ -64,3 +64,11 @@ class BaseAnimeRepository(BaseRepository[Anime], ABC):
         """Remove entity. Abstract method."""
 
         raise NotImplementedError
+
+    @abstractmethod
+    async def get_with_pagination(
+        self, include_genres: list[Genre] | None, excluded_genres: list[Genre] | None, skip: int = 0, limit: int = 10
+    ) -> list[Anime]:
+        """Query anime entities with optional genre filters."""
+
+        raise NotImplementedError

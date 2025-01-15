@@ -1,7 +1,10 @@
+# mypy: disable-error-code="no-redef"
+
 from dataclasses import asdict
+from typing import Callable
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +12,8 @@ from app.database.orm import anime_table, genres_table, studios_table
 from app.entity.anime import Anime, Genre, Studio
 from app.interface.repository.anime_repository import BaseAnimeRepository
 from app.interface.repository.exception import NotFoundError
+
+func: Callable
 
 
 class AnimeSQLRepository(BaseAnimeRepository):
@@ -162,5 +167,37 @@ class AnimeSQLRepository(BaseAnimeRepository):
         """
 
         result = await self.session.execute(select(Studio))
+
+        return list(result.scalars().all())
+
+    async def get_with_pagination(
+        self, include_genres: list[Genre] | None, excluded_genres: list[Genre] | None, skip: int = 0, limit: int = 10
+    ) -> list[Anime]:
+        """
+        Retrieve a paginated list of Anime objects based on included and excluded genres.
+
+        Args:
+            include_genres (list[Genre] | None): A list of genres to filter the results to include.
+                                                    Only Anime associated with these genres will be retrieved.
+            excluded_genres (list[Genre] | None): A list of genres to filter the results to exclude.
+                                                    Anime associated with these genres will be omitted.
+            skip (int, optional): _description_. The number of records to skip from the beginning. Defaults to 0.
+            limit (int, optional): _description_. The maximum number of records to retrieve. Defaults to 10.
+
+        Returns:
+            list[Anime]: A list of Anime objects matching the specified criteria.
+        """
+
+        stmt = select(Anime)
+
+        if include_genres:
+            included_genre_names = [g.name for g in include_genres]
+            stmt.where(genres_table.c.name.in_(included_genre_names))
+
+        if excluded_genres:
+            excluded_genre_names = [g.name for g in excluded_genres]
+            stmt.where(genres_table.c.name.not_in(excluded_genre_names))
+
+        result = await self.session.execute(stmt.offset(skip).limit(limit))
 
         return list(result.scalars().all())
