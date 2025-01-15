@@ -1,6 +1,8 @@
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi_pagination import LimitOffsetPage, LimitOffsetParams
+from fastapi_pagination.async_paginator import paginate as async_paginate
 
 from app.entity.anime import Episode, Franchise, Genre, Studio
 
@@ -8,6 +10,44 @@ from .schemes.anime import BaseAnimeResponse, DetailedAnimeRequest, DetailedAnim
 from .utils.di_deps import AnimeServiceDep
 
 router = APIRouter(prefix="/anime", tags=["Anime"])
+
+
+@router.get("/list", response_model=LimitOffsetPage[BaseAnimeResponse], status_code=status.HTTP_200_OK)
+async def get_anime_list(
+    anime_service: AnimeServiceDep,
+    params: LimitOffsetParams = Depends(),
+    include_genres: list[str] | None = Query(None),
+    exclude_genres: list[str] | None = Query(None),
+) -> LimitOffsetPage[BaseAnimeResponse]:
+    """
+    Retrieve a paginated list of Anime with optional genre filtering.
+
+    This endpoint allows clients to fetch a paginated list of Anime, with the option to include
+    or exclude specific genres. Pagination is handled using the limit-offset pattern.
+
+    Args:
+        anime_service (AnimeServiceDep): The service dependency responsible for fetching Anime data.
+        params (LimitOffsetParams, optional): Query parameters for pagination,
+                                                including `limit`(number of items per page)
+                                                and `offset` (starting position of the items).
+                                                Defaults to automatic dependency injection.
+        include_genres (list[str] | None, optional): A list of genre names to filter the Anime to include.
+                                                        Only Anime associated with these genres will be returned.
+        exclude_genres (list[str] | None, optional): A list of genre names to filter the Anime to exclude.
+                                                        Anime associated with these genres will not be returned.
+
+    Returns:
+        LimitOffsetPage[BaseAnimeResponse]: A paginated response containing Anime objects.
+
+    Raises:
+        HTTPException: If any error occurs in fetching or filtering Anime data.
+    """
+
+    list_of_anime = await anime_service.get_with_pagination(include_genres, exclude_genres, params.offset, params.limit)
+
+    # cast 'Any' type hint to supress mypy
+    paginated_schema: LimitOffsetPage[BaseAnimeResponse] = await async_paginate(list_of_anime, params=params)
+    return paginated_schema
 
 
 @router.post("/", response_model=BaseAnimeResponse, status_code=status.HTTP_201_CREATED)
