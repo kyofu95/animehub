@@ -109,6 +109,32 @@ class InMemoryAnimeRepository(BaseAnimeRepository):
     async def delete(self, entity):
         del self.anime_dict[entity.id]
 
+    async def get_with_pagination(self, include_genres, excluded_genres, skip, limit):
+        i_genres = {g.name for g in include_genres}
+        e_genres = {g.name for g in excluded_genres}
+
+        processed_anime_list = []
+
+        for _, anime in self.anime_dict.items():
+            genres_in_anime = {g.name for g in anime.genres}
+            if i_genres.intersection(genres_in_anime) and e_genres.difference(genres_in_anime):
+                processed_anime_list.append(anime)
+
+        return processed_anime_list
+
+    async def count_titles_with_pagination(self, include_genres, excluded_genres):
+        i_genres = {g.name for g in include_genres}
+        e_genres = {g.name for g in excluded_genres}
+
+        processed_anime_list = []
+
+        for _, anime in self.anime_dict.items():
+            genres_in_anime = {g.name for g in anime.genres}
+            if i_genres.intersection(genres_in_anime) and e_genres.difference(genres_in_anime):
+                processed_anime_list.append(anime)
+
+        return len(processed_anime_list)
+
 
 class InMemoryUnitOfWork(BaseUnitOfWork):
     def __init__(self):
