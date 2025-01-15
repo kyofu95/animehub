@@ -1,7 +1,7 @@
 from datetime import date
 from uuid import UUID, uuid4
 
-from app.entity.anime import AiringStatus, Anime, Episode, AnimeType, Franchise, Genre, Studio
+from app.entity.anime import AiringStatus, Anime, AnimeType, Episode, Franchise, Genre, Studio
 from app.interface.uow.base_uow import BaseUnitOfWork
 
 
@@ -139,3 +139,53 @@ class AnimeService:
 
         async with self.uow as uow:
             return await uow.anime_repository.get_by_name(name)
+
+    async def get_with_pagination(
+        self, include_genres: list[str] | None, excluded_genres: list[str] | None, skip: int = 0, limit: int = 10
+    ) -> list[Anime]:
+        """
+        Retrieve a paginated list of Anime objects based on included and excluded genre names.
+
+        Args:
+            include_genres (list[str] | None): A list of genre names to include in the results.
+                                                Only Anime associated with these genres will be retrieved.
+                                                If `None`, no inclusion filter is applied.
+            excluded_genres (list[str] | None): A list of genre names to exclude from the results.
+                                                Anime associated with these genres will be omitted.
+                                                If `None`, no exclusion filter is applied.
+            skip (int, optional): The number of records to skip from the beginning of the results. Defaults to 0.
+            limit (int, optional): The maximum number of records to retrieve. Defaults to 10.
+
+        Returns:
+            list[Anime]: _description_
+        """
+
+        async with self.uow as uow:
+            all_genres = await uow.anime_repository.get_all_genres()
+
+            all_genres_dict = {g.name: g for g in all_genres}
+
+            processed_include_genres: list[Genre] | None = None
+            if include_genres:
+                processed_include_genres = []
+                for genre_name in include_genres:
+                    genre = all_genres_dict.get(genre_name)
+                    if genre:
+                        processed_include_genres.append(genre)
+
+            processed_exclude_genres: list[Genre] | None = None
+            if excluded_genres:
+                processed_exclude_genres = []
+                for genre_name in excluded_genres:
+                    genre = all_genres_dict.get(genre_name)
+                    if genre:
+                        processed_exclude_genres.append(genre)
+
+            anime = await uow.anime_repository.get_with_pagination(
+                include_genres=processed_include_genres,
+                excluded_genres=processed_exclude_genres,
+                skip=skip,
+                limit=limit,
+            )
+
+            return anime
