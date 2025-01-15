@@ -1,5 +1,5 @@
 # type: ignore
-# pylint: disable=redefined-outer-name, missing-function-docstring, missing-class-docstring, unsubscriptable-object
+# pylint: disable=redefined-outer-name, missing-function-docstring, missing-class-docstring, unsubscriptable-object, signature-differs
 
 from app.interface.repository.anime_repository import BaseAnimeRepository
 from app.interface.repository.user_repository import BaseUserRepository
