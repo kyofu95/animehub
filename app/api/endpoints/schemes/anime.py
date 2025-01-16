@@ -25,15 +25,15 @@ class Episode(BaseModel):
     aired_date: date | None
 
 
-class Genre(BaseModel):
+class GenreRequest(BaseModel):
     name: str
 
 
-class Studio(BaseModel):
+class StudioRequest(BaseModel):
     name: str
 
 
-class Franchise(BaseModel):
+class FranchiseRequest(BaseModel):
     name: str
 
 
@@ -42,10 +42,10 @@ class DetailedAnime(BaseAnime):
     rating: str | None = None
 
     episodes: list[Episode] | None = None
-    genres: list[Genre] | None = None
-    studios: list[Studio] | None = None
+    genres: list[GenreRequest] | None = None
+    studios: list[StudioRequest] | None = None
 
-    franchise: Franchise | None = None
+    franchise: FranchiseRequest | None = None
 
 
 class DetailedAnimeRequest(DetailedAnime):
