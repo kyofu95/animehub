@@ -2,8 +2,10 @@ from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 
 from app.api.api import api_router
+from app.database.orm import start_mapper
 
 
 @asynccontextmanager
@@ -20,6 +22,8 @@ async def lifespan(fastapi: FastAPI) -> AsyncIterator[None]:
     Yields:
         None: Indicates no additional setup or teardown logic is required.
     """
+
+    start_mapper()
 
     yield
 
@@ -38,6 +42,8 @@ def create_app() -> FastAPI:
     api = FastAPI(lifespan=lifespan)
 
     api.include_router(api_router)
+
+    add_pagination(api)
 
     return api
 
