@@ -3,10 +3,6 @@ version: '3.9'
 services:
   web:
     build: .
-    command: sh -c "
-            alembic upgrade head &&
-            pip install debugpy &&
-            python3 -m debugpy --listen 0.0.0.0:5678 -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
     volumes:
       - ./:/app
     expose:

@@ -55,3 +55,6 @@ COPY ./app /app/
 
 COPY alembic.ini /app/
 COPY ./migrations /app/migrations
+COPY entrypoint.sh /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
