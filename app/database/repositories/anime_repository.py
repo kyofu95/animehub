@@ -77,7 +77,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
         return result.scalar_one_or_none()
 
     async def update(self, entity: Anime) -> Anime:
-        """Update an entity.
+        """
+        Update an entity.
 
         Args:
             entity (Anime): entity
@@ -99,7 +100,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
         return entity
 
     async def delete(self, entity: Anime) -> None:
-        """Remove entity from database.
+        """
+        Remove entity from database.
 
         Args:
             entity (Anime): entity to remove
@@ -109,7 +111,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
         await self.session.flush()
 
     async def add_genres(self, genres: list[Genre]) -> list[Genre]:
-        """Inserts new genre entities into database.
+        """
+        Inserts new genre entities into database.
 
         Args:
             genres (list[Genre]): list of genres. May contain new or existing genres.
@@ -129,7 +132,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
         return list(select_result.scalars().all())
 
     async def get_all_genres(self) -> list[Genre]:
-        """Get all stored genres in database.
+        """
+        Get all stored genres in database.
 
         Returns:
             list[Genre]: list of genres.
@@ -140,7 +144,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
         return list(result.scalars().all())
 
     async def add_studios(self, studios: list[Studio]) -> list[Studio]:
-        """Inserts new studio entities into database.
+        """
+        Inserts new studio entities into database.
 
         Args:
             studios (list[Studio]): list of studios. May contain new or existing studios.
@@ -160,7 +165,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
         return list(select_result.scalars().all())
 
     async def get_all_studios(self) -> list[Studio]:
-        """Get all stored studios in database.
+        """
+        Get all stored studios in database.
 
         Returns:
             list[Studio]: list of studios.
