@@ -59,7 +59,7 @@ async def create_anime(anime_request: DetailedAnimeRequest, anime_service: Anime
     and franchise.
 
     Args:
-        anime_request (DetailedAnimeRequest): he input data for the new anime, including its details,
+        anime_request (DetailedAnimeRequest): The input data for the new anime, including its details,
             episodes, genres, studios, and franchise information.
         anime_service (AnimeServiceDep): The AnimeService dependency for handling anime creation.
 
