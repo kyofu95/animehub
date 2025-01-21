@@ -121,6 +121,9 @@ class AnimeSQLRepository(BaseAnimeRepository):
             list[Genre]: list of stored genres
         """
 
+        if not genres:
+            return []
+
         genre_dicts = [asdict(g) for g in genres]
 
         await self.session.execute(pg_insert(Genre).values(genre_dicts).on_conflict_do_nothing())
@@ -153,6 +156,9 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             list[Studio]: list of stored studios
         """
+
+        if not studios:
+            return []
 
         studio_dicts = [asdict(s) for s in studios]
 
