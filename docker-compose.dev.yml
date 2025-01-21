@@ -22,7 +22,7 @@ services:
       - db
 
   db:
-    image: postgres:latest
+    image: postgres:17.2
     volumes:
       - postgres_data:/var/lib/postgres/data
     ports:
