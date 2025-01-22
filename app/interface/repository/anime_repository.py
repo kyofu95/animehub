@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from app.entity.anime import Anime, Genre, Studio
+from app.entity.anime import Anime, Franchise, Genre, Studio
 
 from .base_repository import BaseRepository
 
@@ -50,6 +50,12 @@ class BaseAnimeRepository(BaseRepository[Anime], ABC):
     @abstractmethod
     async def get_all_studios(self) -> list[Studio]:
         """Get all studio entities. Abstract method."""
+
+        raise NotImplementedError
+    
+    @abstractmethod
+    async def add_franchise(self, franchise: Franchise) -> Franchise:
+        """Create franchise entity. Abstract method."""
 
         raise NotImplementedError
 

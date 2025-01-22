@@ -8,8 +8,8 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.orm import anime_table, genres_table, studios_table
-from app.entity.anime import Anime, Genre, Studio
+from app.database.orm import anime_table, franchises_table, genres_table, studios_table
+from app.entity.anime import Anime, Franchise, Genre, Studio
 from app.interface.repository.anime_repository import BaseAnimeRepository
 from app.interface.repository.exception import NotFoundError
 
@@ -181,6 +181,23 @@ class AnimeSQLRepository(BaseAnimeRepository):
         result = await self.session.execute(select(Studio))
 
         return list(result.scalars().all())
+
+    async def add_franchise(self, franchise: Franchise) -> Franchise:
+        """
+        Inserts new franchise entity into database.
+
+        Args:
+            franchise (Franchise): The 'Franchise' object to be added to the database.
+
+        Returns:
+            Franchise: The 'Franchise' object after it has been successfully added or retrieved.
+        """
+
+        franchise_dict = asdict(franchise)
+        await self.session.execute(pg_insert(Franchise).values(franchise_dict).on_conflict_do_nothing())
+
+        select_result = await self.session.execute(select(Franchise).where(franchises_table.c.name == franchise.name))
+        return select_result.scalar_one()
 
     async def get_with_pagination(
         self, include_genres: list[Genre] | None, excluded_genres: list[Genre] | None, skip: int = 0, limit: int = 10
