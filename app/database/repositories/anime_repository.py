@@ -113,6 +113,10 @@ class AnimeSQLRepository(BaseAnimeRepository):
     async def add_genres(self, genres: list[Genre]) -> list[Genre]:
         """
         Inserts new genre entities into database.
+        
+        This method inserts multiple 'Genre' records into the database.
+        If a genre in the list already exists, the operation does nothing
+        for that genre and retrieves the existing records.
 
         Args:
             genres (list[Genre]): list of genres. May contain new or existing genres.
@@ -149,6 +153,10 @@ class AnimeSQLRepository(BaseAnimeRepository):
     async def add_studios(self, studios: list[Studio]) -> list[Studio]:
         """
         Inserts new studio entities into database.
+        
+        This method inserts multiple 'Studio' records into the database. 
+        If any studio in the list already exists, the operation does nothing
+        for that studio and fetches the existing records.
 
         Args:
             studios (list[Studio]): list of studios. May contain new or existing studios.
@@ -185,6 +193,7 @@ class AnimeSQLRepository(BaseAnimeRepository):
     async def add_franchise(self, franchise: Franchise) -> Franchise:
         """
         Inserts new franchise entity into database.
+        If a franchise with the same name already exists, the operation does nothing and fetches the existing record.
 
         Args:
             franchise (Franchise): The 'Franchise' object to be added to the database.
