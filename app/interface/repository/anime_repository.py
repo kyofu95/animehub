@@ -52,7 +52,7 @@ class BaseAnimeRepository(BaseRepository[Anime], ABC):
         """Get all studio entities. Abstract method."""
 
         raise NotImplementedError
-    
+
     @abstractmethod
     async def add_franchise(self, franchise: Franchise) -> Franchise:
         """Create franchise entity. Abstract method."""
