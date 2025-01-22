@@ -42,6 +42,7 @@ class InMemoryAnimeRepository(BaseAnimeRepository):
         self.anime_dict = {}
         self.genres_dict = {}
         self.studios_dict = {}
+        self.franchises_dict = {}
 
     async def add(self, entity):
 
@@ -102,6 +103,13 @@ class InMemoryAnimeRepository(BaseAnimeRepository):
 
     async def get_all_studios(self):
         return list(self.studios_dict.values())
+    
+    async def add_franchise(self, franchise):
+        if not self.franchises_dict.get(franchise.name):
+            self.franchises_dict[franchise.name] = franchise
+            return franchise
+        else:
+            return self.franchises_dict[franchise.name]
 
     async def update(self, entity):
         return entity
