@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.config import common_settings
+from app.core.exceptions import BaseError, DatabaseError
 from app.database.repositories.anime_repository import AnimeSQLRepository
 from app.database.repositories.user_repository import UserSQLRepository
 from app.interface.uow.base_uow import BaseUnitOfWork
@@ -47,10 +48,14 @@ class SQLUnitOfWork(BaseUnitOfWork):
         if self.session:
             await self.session.close()
 
+        # do not omit logic exceptions
+        if isinstance(exc_value, BaseError):
+            return False
+
         if isinstance(exc_value, SQLAlchemyError):
             if common_settings.debug:
                 logging.exception("A sqlalchemy exception has been occured and trapped inside UoW")
-            return True
+            raise DatabaseError from exc_value
 
         return False
 
