@@ -2,20 +2,9 @@ from datetime import date
 from typing import Any
 from uuid import UUID, uuid4
 
+from app.core.exceptions import AlreadyExistsError, NotFoundError
 from app.entity.anime import AiringStatus, Anime, AnimeType, Episode, Franchise, Genre, Studio
 from app.interface.uow.base_uow import BaseUnitOfWork
-
-
-class AnimeAlreadyExistsError(Exception):
-    """
-    Attempting to create an anime that already exists.
-    """
-
-
-class AnimeNotExistsError(Exception):
-    """ "
-    Exception raised when a requested anime does not exist.
-    """
 
 
 class AnimeService:
@@ -74,7 +63,7 @@ class AnimeService:
             id_ (UUID | None): Anime id. Defaults to None if not provided and will be generated on place.
 
         Raises:
-            AnimeAlreadyExistsError: If an anime with the same login already exists.
+            AlreadyExistsError: If an anime with the same login already exists.
 
         Returns:
             Anime | None: The newly created anime instance.
@@ -84,7 +73,7 @@ class AnimeService:
 
             existing_anime = await uow.anime_repository.get_by_name(english_name)
             if existing_anime:
-                raise AnimeAlreadyExistsError("Trying to create an anome with existing name")
+                raise AlreadyExistsError("Trying to create an anome with existing name")
 
             if not id_:
                 id_ = uuid4()
@@ -156,7 +145,7 @@ class AnimeService:
             update_dict (dict[str, Any]):  A dictionary containing the updated values for the anime.
 
         Raises:
-            AnimeNotExistsError: If an anime with given ID doesn't exists.
+            NotFoundError: If an anime with given ID doesn't exists.
 
         Returns:
             Anime: The updated anime instance.
@@ -165,7 +154,7 @@ class AnimeService:
         async with self.uow as uow:
             anime = await uow.anime_repository.get_by_id(id_)
             if not anime:
-                raise AnimeNotExistsError(f"Anime with id '{id_}' does not exist.")
+                raise NotFoundError(f"Anime with id '{id_}' does not exist.")
 
             for k, v in update_dict.items():
                 # skip complex fields for now

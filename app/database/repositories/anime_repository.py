@@ -8,10 +8,10 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import NotFoundError
 from app.database.orm import anime_table, franchises_table, genres_table, studios_table
 from app.entity.anime import Anime, Franchise, Genre, Studio
 from app.interface.repository.anime_repository import BaseAnimeRepository
-from app.interface.repository.exception import NotFoundError
 
 func: Callable
 

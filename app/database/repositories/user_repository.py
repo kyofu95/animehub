@@ -3,9 +3,9 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import NotFoundError
 from app.database.orm import user_table
 from app.entity.user import User
-from app.interface.repository.exception import NotFoundError
 from app.interface.repository.user_repository import BaseUserRepository
 
 

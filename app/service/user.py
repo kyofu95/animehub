@@ -1,23 +1,11 @@
 from uuid import UUID, uuid4
 
+from app.core.exceptions import AlreadyExistsError
 from app.core.security import Hasher
-from app.entity.user import User
 from app.entity.anime import Anime
+from app.entity.user import User
 from app.entity.watchlist import WatchingEntry, WatchingStatus
-
 from app.interface.uow.base_uow import BaseUnitOfWork
-
-
-class UserAlreadyExistsError(Exception):
-    """
-    Attempting to create a user that already exists.
-    """
-
-
-class WatchingEntryAlredyExistsError(Exception):
-    """
-    Attempting to create a watching entry for an anime that already exists.
-    """
 
 
 class UserService:
@@ -47,7 +35,7 @@ class UserService:
             password (str): The password for the new user.
 
         Raises:
-            UserAlreadyExistsError: If a user with the same login already exists.
+            AlreadyExistsError: If a user with the same login already exists.
 
         Returns:
             User: The newly created User object.
@@ -56,7 +44,7 @@ class UserService:
 
             user = await uow.user_repository.get_by_login(login)
             if user:
-                raise UserAlreadyExistsError("Trying to create user with existing login")
+                raise AlreadyExistsError("Trying to create user with existing login")
 
             hashed_password = Hasher.hash(password)
 
@@ -77,7 +65,7 @@ class UserService:
             anime (Anime): Anime being watched.
 
         Raises:
-            WatchingEntryAlredyExistsError: If an entry for the anime already exists in the user's watchlist.
+            AlreadyExistsError: If an entry for the anime already exists in the user's watchlist.
 
         Returns:
             Watching: The newly created Watching object.
@@ -87,7 +75,7 @@ class UserService:
 
             for item in user.watching_list:
                 if item.anime == anime:
-                    raise WatchingEntryAlredyExistsError
+                    raise AlreadyExistsError("Anime already added to user's watchlist")
 
             watching = WatchingEntry(id=uuid4(), status=status, num_watched_episodes=num_watched_episodes, anime=anime)
 
