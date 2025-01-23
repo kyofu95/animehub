@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 from uuid import UUID, uuid4
 
 from app.entity.anime import AiringStatus, Anime, AnimeType, Episode, Franchise, Genre, Studio
@@ -8,6 +9,12 @@ from app.interface.uow.base_uow import BaseUnitOfWork
 class AnimeAlreadyExistsError(Exception):
     """
     Attempting to create an anime that already exists.
+    """
+
+
+class AnimeNotExistsError(Exception):
+    """ "
+    Exception raised when a requested anime does not exist.
     """
 
 
@@ -139,6 +146,58 @@ class AnimeService:
 
         async with self.uow as uow:
             return await uow.anime_repository.get_by_name(name)
+
+    async def update(self, id_: UUID, update_dict: dict[str, Any]) -> Anime:
+        """
+        Updates an existing anime with the provided ID.
+
+        Args:
+            id_ (UUID): The id of the anime to update.
+            update_dict (dict[str, Any]):  A dictionary containing the updated values for the anime.
+
+        Raises:
+            AnimeNotExistsError: If an anime with given ID doesn't exists.
+
+        Returns:
+            Anime: The updated anime instance.
+        """
+
+        async with self.uow as uow:
+            anime = await uow.anime_repository.get_by_id(id_)
+            if not anime:
+                raise AnimeNotExistsError(f"Anime with id '{id_}' does not exist.")
+
+            for k, v in update_dict.items():
+                # skip complex fields for now
+                if k in ["episodes", "genres", "studios", "franchise"]:
+                    continue
+                existing_value = anime.__dict__[k]
+                if v != existing_value:
+                    anime.__dict__[k] = v
+
+            # process 'episodes', 'genres', 'studios' and 'franchise' separately
+            if update_dict["episodes"]:
+                anime.episodes = []
+                new_episodes = update_dict["episodes"]
+                for e in new_episodes:
+                    anime.episodes.append(Episode(uuid4(), e.name, e.aired_date, anime_id=anime.id))
+
+            if update_dict["genres"]:
+                genres: list[dict[str, str]] = update_dict["genres"]
+                new_genres = [Genre(id=uuid4(), name=g["name"]) for g in genres]
+                anime.genres = await uow.anime_repository.add_genres(new_genres)
+
+            if update_dict["studios"]:
+                studios: list[dict[str, str]] = update_dict["studios"]
+                new_studios = [Studio(id=uuid4(), name=s["name"]) for s in studios]
+                anime.studios = await uow.anime_repository.add_studios(new_studios)
+
+            if update_dict["franchise"]:
+                anime.franchise = await uow.anime_repository.add_franchise(
+                    Franchise(id=uuid4(), name=update_dict["franchise"].name, anime_id=anime.id)
+                )
+
+            return await uow.anime_repository.update(anime)
 
     async def get_with_pagination(
         self, include_genres: list[str] | None, excluded_genres: list[str] | None, skip: int = 0, limit: int = 10

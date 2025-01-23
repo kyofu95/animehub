@@ -123,6 +123,31 @@ async def create_anime(anime_request: DetailedAnimeRequest, anime_service: Anime
     return BaseAnimeResponse.model_validate(anime, from_attributes=True)
 
 
+@router.patch("/{anime_id}", response_model=DetailedAnimeResponse, status_code=status.HTTP_200_OK)
+async def update_anime_by_id(
+    anime_id: UUID, anime_service: AnimeServiceDep, anime_request: DetailedAnimeRequest
+) -> DetailedAnimeResponse:
+    """
+    Update an existing anime by its ID.
+    This endpoint updates the details of an existing anime record based on the provided anime ID
+    and request body. The updated anime details are returned in the response.
+
+    Args:
+        anime_id (UUID): The unique ID of the anime to retrieve.
+        anime_service (AnimeServiceDep): The AnimeService dependency for fetching anime details.
+        anime_request (DetailedAnimeRequest): The request body containing the updated anime details.
+
+    Returns:
+        DetailedAnimeResponse: The updated anime details serialized into the response model.
+    """
+
+    anime_request_dict = anime_request.model_dump()
+
+    anime = await anime_service.update(anime_id, anime_request_dict)
+
+    return DetailedAnimeResponse.model_validate(anime, from_attributes=True)
+
+
 @router.get("/{anime_id}", response_model=BaseAnimeResponse, status_code=status.HTTP_200_OK)
 async def get_anime_by_id(anime_id: UUID, anime_service: AnimeServiceDep) -> BaseAnimeResponse:
     """
