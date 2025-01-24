@@ -1,10 +1,7 @@
 from argon2 import PasswordHasher
 from argon2.exceptions import Argon2Error, InvalidHashError, VerifyMismatchError
 
-
-class HashingError(Exception):
-    """Issues with hashing or validation."""
-
+from .exceptions import HashingError
 
 hasher = PasswordHasher()
 

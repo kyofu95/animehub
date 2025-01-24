@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi_pagination import add_pagination
 
 from app.api.api import api_router
-from app.core.exceptions import AlreadyExistsError, DatabaseError, NotFoundError
+from app.core.exceptions import AlreadyExistsError, DatabaseError, HashingError, NotFoundError
 from app.database.orm import start_mapper
 
 
@@ -54,6 +54,13 @@ def install_exception_handlers(fast_app: FastAPI) -> None:
 
     @fast_app.exception_handler(DatabaseError)
     async def database_exc(request: Request, exc: DatabaseError):
+        return JSONResponse(
+            content={"detail": str(exc)},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    @fast_app.exception_handler(HashingError)
+    async def hashing_exc(request: Request, exc: HashingError):
         return JSONResponse(
             content={"detail": str(exc)},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
