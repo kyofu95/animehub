@@ -3,7 +3,8 @@
 
 import pytest
 
-from app.core.security import Hasher, HashingError
+from app.core.exceptions import HashingError
+from app.core.security import Hasher
 
 
 @pytest.mark.asyncio

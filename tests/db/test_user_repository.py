@@ -6,11 +6,11 @@ from uuid import uuid4
 
 import pytest
 
+from app.core.exceptions import NotFoundError
 from app.database.uow.sql_uow import SQLUnitOfWork
 from app.entity.anime import AiringStatus, Anime, AnimeType
 from app.entity.user import User
 from app.entity.watchlist import WatchingEntry, WatchingStatus
-from app.interface.repository.exception import NotFoundError
 
 
 def create_anime_a():
@@ -110,6 +110,7 @@ async def test_user_update_exc(sqlite_sessionfactory):
             _ = await uow.user_repository.update(not_stored_user)
 
     assert exc_info.type is NotFoundError
+
 
 @pytest.mark.asyncio
 async def test_user_uow_rollback(sqlite_sessionfactory):

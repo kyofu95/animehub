@@ -7,10 +7,11 @@ from uuid import uuid4
 
 import pytest
 
+from app.core.exceptions import AlreadyExistsError
 from app.core.security import Hasher
 from app.entity.anime import AiringStatus, Anime, AnimeType
 from app.entity.watchlist import WatchingStatus
-from app.service.user import UserAlreadyExistsError, UserService, WatchingEntryAlredyExistsError
+from app.service.user import UserService
 from in_memory_deps import InMemoryUnitOfWork
 
 
@@ -22,9 +23,9 @@ async def test_user_service():
     created_user = await service.create("aaa", "b")
     assert created_user
 
-    with pytest.raises(UserAlreadyExistsError) as exc_info:
+    with pytest.raises(AlreadyExistsError) as exc_info:
         await service.create("aaa", "b")
-    assert exc_info.type is UserAlreadyExistsError
+    assert exc_info.type is AlreadyExistsError
 
     assert len(uow.user_repository_impl.user_dict) == 1
 
@@ -91,9 +92,9 @@ async def test_user_service_watching_entry():
     )
     assert len(user.watching_list) == 2
 
-    with pytest.raises(WatchingEntryAlredyExistsError) as exc_info:
+    with pytest.raises(AlreadyExistsError) as exc_info:
         await service.create_watching_entry(
             status=WatchingStatus.WATCHING, num_watched_episodes=1, user=user, anime=anime_a
         )
-    assert exc_info.type is WatchingEntryAlredyExistsError
+    assert exc_info.type is AlreadyExistsError
     assert len(user.watching_list) == 2

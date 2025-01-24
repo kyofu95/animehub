@@ -6,9 +6,9 @@ from uuid import uuid4
 
 import pytest
 
+from app.core.exceptions import NotFoundError
 from app.database.uow.sql_uow import SQLUnitOfWork
 from app.entity.anime import AiringStatus, Anime, AnimeType, Episode, Franchise, Genre, Studio
-from app.interface.repository.exception import NotFoundError
 
 
 @pytest.mark.asyncio

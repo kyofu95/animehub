@@ -7,7 +7,8 @@ from uuid import uuid4
 
 import pytest
 
-from app.service.anime import AiringStatus, AnimeAlreadyExistsError, AnimeService, AnimeType, Episode, Genre, Studio
+from app.core.exceptions import AlreadyExistsError
+from app.service.anime import AiringStatus, AnimeService, AnimeType, Episode, Genre, Studio
 from in_memory_deps import InMemoryUnitOfWork
 
 
@@ -19,10 +20,10 @@ async def test_anime_service():
     created_anime = await service.create("a", AnimeType.MOVIE, AiringStatus.COMPLETE, date(2002, 1, 1))
     assert created_anime
 
-    with pytest.raises(AnimeAlreadyExistsError) as exc_info:
+    with pytest.raises(AlreadyExistsError) as exc_info:
         already_existing_anime = await service.create("a", AnimeType.MOVIE, AiringStatus.COMPLETE, date(2002, 1, 1))
         assert already_existing_anime is None
-    assert exc_info.type is AnimeAlreadyExistsError
+    assert exc_info.type is AlreadyExistsError
 
     existing_anime = await service.get_by_id(created_anime.id)
     assert existing_anime
