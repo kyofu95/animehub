@@ -121,3 +121,30 @@ async def test_user_service_watching_entry():
     with pytest.raises(NotFoundError) as exc_info:
         await service.remove_watchlist_entry(user=user, anime=anime_c)
     assert exc_info.type is NotFoundError
+
+
+@pytest.mark.asyncio
+async def test_user_service_update_watching_entry():
+    uow = InMemoryUnitOfWork()
+    service = UserService(uow)
+
+    user = await service.create("aaa", "b")
+    assert user
+
+    async with uow:
+        anime_a = await uow.anime_repository.add(create_anime_a())
+
+    entry = await service.create_watching_entry(
+        status=WatchingStatus.WATCHING, num_watched_episodes=1, user=user, anime=anime_a
+    )
+
+    assert entry.num_watched_episodes == 1
+
+    update_dict = {"status": WatchingStatus.WATCHING, "num_watched_episodes": 4}
+
+    entry = await service.update_watchlist_entry(user=user, entry_id=entry.id, update_dict=update_dict)
+    assert entry.num_watched_episodes == 4
+
+    with pytest.raises(NotFoundError) as exc_info:
+        await service.update_watchlist_entry(user=user, entry_id=uuid4(), update_dict=update_dict)
+    assert exc_info.type is NotFoundError

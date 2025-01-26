@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID, uuid4
 
 from app.core.exceptions import AlreadyExistsError, NotFoundError
@@ -115,6 +116,42 @@ class UserService:
             await uow.user_repository.update(user)
 
             return found_entry
+
+    async def update_watchlist_entry(self, user: User, entry_id: UUID, update_dict: dict[str, Any]) -> WatchingEntry:
+        """
+        Update a specific entry in a users watchlist.
+
+        Args:
+            user (User): The 'User' object whose watchlist contains the entry to be updated.
+            entry_id (UUID): The unique identifier of the watchlist entry to update.
+            update_dict (dict[str, Any]): A dictionary of fields and their new values to update in the `WatchingEntry`.
+
+        Raises:
+            NotFoundError: If the watchlist entry with the specified ID is not found.
+
+        Returns:
+            WatchingEntry: The updated 'WatchingEntry' object.
+        """
+
+        async with self.uow as uow:
+
+            entry: WatchingEntry | None = None
+
+            for e in user.watching_list:
+                if e.id == entry_id:
+                    entry = e
+
+            if not entry:
+                raise NotFoundError(f"Watchlist entry with ID \'{entry_id}\' not found")
+
+            for k, v in update_dict.items():
+                existing_value = entry.__dict__[k]
+                if v != existing_value:
+                    entry.__dict__[k] = v
+
+            await uow.user_repository.update(user)
+
+            return entry
 
     async def get_by_login_auth(self, login: str, password: str) -> User | None:
         """
