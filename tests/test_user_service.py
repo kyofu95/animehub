@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.exceptions import AlreadyExistsError
+from app.core.exceptions import AlreadyExistsError, NotFoundError
 from app.core.security import Hasher
 from app.entity.anime import AiringStatus, Anime, AnimeType
 from app.entity.watchlist import WatchingStatus
@@ -70,6 +70,18 @@ def create_anime_b():
     )
 
 
+def create_anime_c():
+    return Anime(
+        id=uuid4(),
+        name_en="CCC",
+        airing_status=AiringStatus.COMPLETE,
+        airing_start=date(2000, 1, 1),
+        airing_end=date(2001, 1, 1),
+        type=AnimeType.TV,
+        total_number_of_episodes=12,
+    )
+
+
 @pytest.mark.asyncio
 async def test_user_service_watching_entry():
     uow = InMemoryUnitOfWork()
@@ -81,6 +93,7 @@ async def test_user_service_watching_entry():
     async with uow:
         anime_a = await uow.anime_repository.add(create_anime_a())
         anime_b = await uow.anime_repository.add(create_anime_b())
+        anime_c = await uow.anime_repository.add(create_anime_c())
 
     await service.create_watching_entry(
         status=WatchingStatus.WATCHING, num_watched_episodes=1, user=user, anime=anime_a
@@ -98,3 +111,13 @@ async def test_user_service_watching_entry():
         )
     assert exc_info.type is AlreadyExistsError
     assert len(user.watching_list) == 2
+
+    await service.remove_watchlist_entry(user=user, anime=anime_a)
+    assert len(user.watching_list) == 1
+
+    await service.remove_watchlist_entry(user=user, anime=anime_b)
+    assert len(user.watching_list) == 0
+
+    with pytest.raises(NotFoundError) as exc_info:
+        await service.remove_watchlist_entry(user=user, anime=anime_c)
+    assert exc_info.type is NotFoundError

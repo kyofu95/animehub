@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 
-from app.core.exceptions import AlreadyExistsError
+from app.core.exceptions import AlreadyExistsError, NotFoundError
 from app.core.security import Hasher
 from app.entity.anime import Anime
 from app.entity.user import User
@@ -84,6 +84,37 @@ class UserService:
             user = await uow.user_repository.update(user)
 
             return watching
+
+    async def remove_watchlist_entry(self, user: User, anime: Anime) -> WatchingEntry:
+        """
+        Remove an anime entry from a users watchlist.
+
+        Args:
+            user (User): The 'User' object whose watchlist is being modified.
+            anime (Anime): The 'Anime' object to be removed from the watchlist.
+
+        Raises:
+            NotFoundError: If the anime is not found in the user's watchlist.
+
+        Returns:
+            WatchingEntry: The 'WatchingEntry' object that was removed from the user's watchlist.
+        """
+
+        async with self.uow as uow:
+
+            found_entry: WatchingEntry | None = None
+            for item in user.watching_list:
+                if item.anime == anime:
+                    found_entry = item
+
+            if not found_entry:
+                raise NotFoundError("Anime is not found")
+
+            user.watching_list.remove(found_entry)
+
+            await uow.user_repository.update(user)
+
+            return found_entry
 
     async def get_by_login_auth(self, login: str, password: str) -> User | None:
         """
