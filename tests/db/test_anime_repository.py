@@ -219,3 +219,50 @@ async def test_anime_update_exc(sqlite_sessionfactory):
             _ = await uow.anime_repository.update(not_stored_anime)
 
     assert exc_info.type is NotFoundError
+
+@pytest.mark.asyncio
+async def test_anime_franchise(sqlite_sessionfactory):
+
+    genres = [Genre(id=uuid4(), name="Comedy")]
+
+    studios = [Studio(id=uuid4(), name="CloverWorks")]
+
+    anime = Anime(
+        id=uuid4(),
+        name_en="Bocchi the Rock! Movie",
+        type=AnimeType.MOVIE,
+        airing_status=AiringStatus.COMPLETE,
+        airing_start=date(2024, 6, 7),
+        airing_end=date(2024, 8, 9),
+        total_number_of_episodes=2,
+        genres=genres,
+        studios=studios,
+    )
+
+    uow = SQLUnitOfWork(sqlite_sessionfactory)
+
+    async with uow:
+        stored_anime = await uow.anime_repository.add(anime)
+        assert stored_anime
+
+    async with uow:
+
+        stored_anime = await uow.anime_repository.get_by_id(anime.id)
+
+        franchise = Franchise(id=uuid4(), name="Himouto! Umaru-chan", anime_id=stored_anime.id)
+
+        added_franchise = await uow.anime_repository.add_franchise(franchise)
+        stored_anime.franchise = added_franchise
+        stored_anime = await uow.anime_repository.update(stored_anime)
+
+        assert franchise.name == added_franchise.name
+        assert franchise.name == stored_anime.franchise.name
+
+@pytest.mark.asyncio
+async def test_anime_paginate(sqlite_sessionfactory):
+    uow = SQLUnitOfWork(sqlite_sessionfactory)
+
+    async with uow:
+
+        anime = await uow.anime_repository.get_with_pagination(None, None, 0, 10)
+        assert len(anime) == 0
