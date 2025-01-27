@@ -87,7 +87,7 @@ def create_app() -> FastAPI:
 
     add_pagination(api)
 
-    app.add_middleware(
+    api.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
