@@ -12,7 +12,7 @@ from app.database.orm import start_mapper
 
 
 @asynccontextmanager
-async def lifespan(fastapi: FastAPI) -> AsyncIterator[None]:
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """
     Define the application's lifespan for startup and shutdown events.
 
@@ -43,25 +43,25 @@ def install_exception_handlers(fast_app: FastAPI) -> None:
     """
 
     @fast_app.exception_handler(NotFoundError)
-    async def not_found_exc(request: Request, exc: NotFoundError):
+    async def not_found_exc(_: Request, exc: NotFoundError) -> JSONResponse:
         return JSONResponse(content={"detail": str(exc)}, status_code=status.HTTP_404_NOT_FOUND)
 
     @fast_app.exception_handler(AlreadyExistsError)
-    async def already_exists_exc(request: Request, exc: AlreadyExistsError):
+    async def already_exists_exc(_: Request, exc: AlreadyExistsError) -> JSONResponse:
         return JSONResponse(
             content={"detail": str(exc)},
             status_code=status.HTTP_409_CONFLICT,
         )
 
     @fast_app.exception_handler(DatabaseError)
-    async def database_exc(request: Request, exc: DatabaseError):
+    async def database_exc(_: Request, exc: DatabaseError) -> JSONResponse:
         return JSONResponse(
             content={"detail": str(exc)},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
     @fast_app.exception_handler(HashingError)
-    async def hashing_exc(request: Request, exc: HashingError):
+    async def hashing_exc(_: Request, exc: HashingError) -> JSONResponse:
         return JSONResponse(
             content={"detail": str(exc)},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -88,12 +88,12 @@ def create_app() -> FastAPI:
     add_pagination(api)
 
     api.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     return api
 
