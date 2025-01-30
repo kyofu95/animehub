@@ -165,26 +165,35 @@ class AnimeService:
                     anime.__dict__[k] = v
 
             # process 'episodes', 'genres', 'studios' and 'franchise' separately
-            if update_dict["episodes"]:
+            if update_dict.get("episodes"):
                 anime.episodes = []
-                new_episodes = update_dict["episodes"]
+                new_episodes: list[dict[str, Any]] = update_dict["episodes"]
                 for e in new_episodes:
-                    anime.episodes.append(Episode(uuid4(), e.name, e.aired_date, anime_id=anime.id))
+                    anime.episodes.append(Episode(uuid4(), e["name"], e["aired_date"], anime_id=anime.id))
+            else:
+                anime.episodes = []
 
-            if update_dict["genres"]:
+            if update_dict.get("genres"):
                 genres: list[dict[str, str]] = update_dict["genres"]
                 new_genres = [Genre(id=uuid4(), name=g["name"]) for g in genres]
                 anime.genres = await uow.anime_repository.add_genres(new_genres)
+            else:
+                anime.genres = []
 
-            if update_dict["studios"]:
+            if update_dict.get("studios"):
                 studios: list[dict[str, str]] = update_dict["studios"]
                 new_studios = [Studio(id=uuid4(), name=s["name"]) for s in studios]
                 anime.studios = await uow.anime_repository.add_studios(new_studios)
+            else:
+                anime.studios = []
 
-            if update_dict["franchise"]:
+            if update_dict.get("franchise"):
+                new_franchise: dict[str, str] = update_dict["franchise"]
                 anime.franchise = await uow.anime_repository.add_franchise(
-                    Franchise(id=uuid4(), name=update_dict["franchise"].name, anime_id=anime.id)
+                    Franchise(id=uuid4(), name=new_franchise["name"], anime_id=anime.id)
                 )
+            else:
+                anime.franchise = None
 
             return await uow.anime_repository.update(anime)
 
