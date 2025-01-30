@@ -19,4 +19,4 @@ class User:
     active: bool = True
     admin: bool = False
 
-    watching_list: list[WatchingEntry] = field(default_factory=lambda: [])
+    watching_list: list[WatchingEntry] = field(default_factory=list)

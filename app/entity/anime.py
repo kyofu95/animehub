@@ -63,10 +63,8 @@ class Franchise:
     id: UUID
     name: str
 
-    #optional attribute
+    # optional attribute
     anime_id: UUID
-
-    anime: list[Anime] = field(default_factory=lambda: [])
 
 
 @dataclass
@@ -79,7 +77,7 @@ class Episode:
     name: str
     aired_date: date | None
 
-    #optional attributes
+    # optional attributes
     anime_id: UUID
 
 
@@ -102,7 +100,7 @@ class Anime:
     description: str | None = None
     rating: str | None = None
 
-    episodes: list[Episode] = field(default_factory=lambda:[])
-    genres: list[Genre] = field(default_factory=lambda:[])
-    studios: list[Studio] = field(default_factory=lambda:[])
+    episodes: list[Episode] = field(default_factory=list)
+    genres: list[Genre] = field(default_factory=list)
+    studios: list[Studio] = field(default_factory=list)
     franchise: Franchise | None = None
