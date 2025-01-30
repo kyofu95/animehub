@@ -33,7 +33,6 @@ async def test_anime_service():
     assert existing_anime
 
 
-
 @pytest.mark.asyncio
 async def test_anime_service_ex():
     uow = InMemoryUnitOfWork()
@@ -65,6 +64,7 @@ async def test_anime_service_ex():
     assert created_anime
     assert len(created_anime.episodes) == 2
 
+
 @pytest.mark.asyncio
 async def test_anime_service_update():
     uow = InMemoryUnitOfWork()
@@ -73,9 +73,7 @@ async def test_anime_service_update():
     created_anime = await service.create("a", AnimeType.MOVIE, AiringStatus.COMPLETE, date(2002, 1, 1))
     assert created_anime
 
-    update_dict = {
-        "description": "bbb"
-    }
+    update_dict = {"description": "bbb"}
 
     with pytest.raises(NotFoundError) as exc_info:
         await service.update(id_=uuid4(), update_dict=update_dict)
@@ -86,16 +84,7 @@ async def test_anime_service_update():
 
     update_dict = {
         "description": "bbb",
-        "episodes": [
-            {
-                "name": "1",
-                "aired_date": date(2000, 1, 1)
-            },
-            {
-                "name": "2",
-                "aired_date": date(2000, 1, 1)
-            }
-        ]
+        "episodes": [{"name": "1", "aired_date": date(2000, 1, 1)}, {"name": "2", "aired_date": date(2000, 1, 1)}],
     }
 
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
@@ -108,44 +97,18 @@ async def test_anime_service_update():
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
     assert len(updated_anime.episodes) == 0
 
-    update_dict = {
-        "description": "bbb",
-        "genres": [
-            {
-                "name": "Comedy"
-            }
-        ]
-    }
+    update_dict = {"description": "bbb", "genres": [{"name": "Comedy"}]}
 
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
     assert len(updated_anime.genres) == 1
     assert updated_anime.genres[0].name == "Comedy"
 
-    update_dict = {
-        "description": "bbb",
-        "genres": [
-            {
-                "name": "Comedy"
-            },
-            {
-                "name": "Action"
-            },
-            {
-                "name": "Fantasy"
-            }
-        ]
-    }
+    update_dict = {"description": "bbb", "genres": [{"name": "Comedy"}, {"name": "Action"}, {"name": "Fantasy"}]}
 
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
     assert len(updated_anime.genres) == 3
 
-    update_dict = {
-        "studios": [
-            {
-                "name": "CloverWorks"
-            }
-        ]
-    }
+    update_dict = {"studios": [{"name": "CloverWorks"}]}
 
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
     assert len(updated_anime.studios) == 1
@@ -156,11 +119,7 @@ async def test_anime_service_update():
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
     assert len(updated_anime.studios) == 0
 
-    update_dict = {
-        "franchise": {
-            "name": "TestFranchise"
-        }
-    }
+    update_dict = {"franchise": {"name": "TestFranchise"}}
 
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
     assert updated_anime.franchise
@@ -170,3 +129,45 @@ async def test_anime_service_update():
 
     updated_anime = await service.update(id_=created_anime.id, update_dict=update_dict)
     assert updated_anime.franchise is None
+
+
+@pytest.mark.asyncio
+async def test_anime_service_pagination():
+    uow = InMemoryUnitOfWork()
+    service = AnimeService(uow)
+
+    await service.create(
+        "a0",
+        AnimeType.MOVIE,
+        AiringStatus.COMPLETE,
+        date(2002, 1, 1),
+        genres=[Genre(id=uuid4(), name="AAA"), Genre(id=uuid4(), name="BBB"), Genre(id=uuid4(), name="RRR")],
+    )
+
+    await service.create(
+        "a3",
+        AnimeType.MOVIE,
+        AiringStatus.COMPLETE,
+        date(2002, 1, 1),
+        genres=[Genre(id=uuid4(), name="CCC"), Genre(id=uuid4(), name="DDD"), Genre(id=uuid4(), name="RRR")],
+    )
+
+    await service.create(
+        "a1",
+        AnimeType.MOVIE,
+        AiringStatus.COMPLETE,
+        date(2002, 1, 1),
+        genres=[Genre(id=uuid4(), name="AAA"), Genre(id=uuid4(), name="CCC"), Genre(id=uuid4(), name="RRR")],
+    )
+
+    list_of_anime = await service.get_with_pagination(None, None)
+    assert len(list_of_anime) == 3
+    assert list_of_anime[0].name_en == "a0"
+    assert list_of_anime[1].name_en == "a1"
+    assert list_of_anime[2].name_en == "a3"
+
+    list_of_anime = await service.get_with_pagination(None, ["RRR"])
+    assert len(list_of_anime) == 0
+
+    list_of_anime = await service.get_with_pagination(["AAA"], None)
+    assert len(list_of_anime) == 2
