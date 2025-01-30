@@ -59,5 +59,7 @@ class JWTSettings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expiry: int = 25
 
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
 
 jwt_settings = JWTSettings()
