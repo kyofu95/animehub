@@ -93,7 +93,7 @@ user_table = Table(
     "user",
     mapper_registry.metadata,
     Column("id", UUID, primary_key=True),
-    Column("login", String),
+    Column("login", String, unique=True),
     Column("password", String),
     Column("created_at", DateTime(timezone=True), nullable=True, default=datetime.now(timezone.utc)),
     Column(
@@ -119,7 +119,9 @@ def start_mapper() -> None:
     mapper_registry.map_imperatively(
         AnimeEntity.Franchise,
         franchises_table,
-        properties={"anime": relationship(AnimeEntity.Anime, back_populates="franchise", uselist=True)},
+        properties={
+            "anime": relationship(AnimeEntity.Anime, back_populates="franchise", uselist=True)
+        },
     )
 
     mapper_registry.map_imperatively(
@@ -144,7 +146,7 @@ def start_mapper() -> None:
         watching_entry_table,
         properties={
             "user": relationship(UserEntity.User, back_populates="watching_list", uselist=False),
-            "anime": relationship(AnimeEntity.Anime, uselist=False, backref="Anime"),
+            "anime": relationship(AnimeEntity.Anime, uselist=False, backref="Anime", lazy="selectin"),
         },
     )
 
