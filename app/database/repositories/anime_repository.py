@@ -203,8 +203,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
             Franchise: The 'Franchise' object after it has been successfully added or retrieved.
         """
 
-        franchise_dict = asdict(franchise)
-        await self.session.execute(pg_insert(Franchise).values(franchise_dict).on_conflict_do_nothing())
+        franchise_dicts = [asdict(franchise)]
+        await self.session.execute(pg_insert(Franchise).values(franchise_dicts).on_conflict_do_nothing())
 
         select_result = await self.session.execute(select(Franchise).where(franchises_table.c.name == franchise.name))
         return select_result.scalar_one()
