@@ -113,7 +113,7 @@ class AnimeSQLRepository(BaseAnimeRepository):
     async def add_genres(self, genres: list[Genre]) -> list[Genre]:
         """
         Inserts new genre entities into database.
-        
+
         This method inserts multiple 'Genre' records into the database.
         If a genre in the list already exists, the operation does nothing
         for that genre and retrieves the existing records.
@@ -153,8 +153,8 @@ class AnimeSQLRepository(BaseAnimeRepository):
     async def add_studios(self, studios: list[Studio]) -> list[Studio]:
         """
         Inserts new studio entities into database.
-        
-        This method inserts multiple 'Studio' records into the database. 
+
+        This method inserts multiple 'Studio' records into the database.
         If any studio in the list already exists, the operation does nothing
         for that studio and fetches the existing records.
 
@@ -193,6 +193,7 @@ class AnimeSQLRepository(BaseAnimeRepository):
     async def add_franchise(self, franchise: Franchise) -> Franchise:
         """
         Inserts new franchise entity into database.
+
         If a franchise with the same name already exists, the operation does nothing and fetches the existing record.
 
         Args:
@@ -230,11 +231,15 @@ class AnimeSQLRepository(BaseAnimeRepository):
 
         if include_genres:
             included_genre_names = [g.name for g in include_genres]
-            stmt.where(genres_table.c.name.in_(included_genre_names))
+            stmt = stmt.join(Genre, anime_table.c.id == genres_table.c.id).where(
+                genres_table.c.name.in_(included_genre_names)
+            )
 
         if excluded_genres:
             excluded_genre_names = [g.name for g in excluded_genres]
-            stmt.where(genres_table.c.name.not_in(excluded_genre_names))
+            stmt = stmt.join(Genre, anime_table.c.id == genres_table.c.id).where(
+                genres_table.c.name.not_in(excluded_genre_names)
+            )
 
         result = await self.session.execute(stmt.offset(skip).limit(limit))
 
