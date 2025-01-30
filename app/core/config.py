@@ -3,6 +3,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class CommonSettings(BaseSettings):
+    """
+    Common configuration settings for the application.
+
+    Attributes:
+        debug (bool): A flag indicating whether debug mode is enabled.
+            Defaults to `False`. Mapped from the `DEBUG` environment variable.
+    """
+
     debug: bool = Field(alias="DEBUG", default=False)
 
 
