@@ -220,6 +220,7 @@ async def test_anime_update_exc(sqlite_sessionfactory):
 
     assert exc_info.type is NotFoundError
 
+
 @pytest.mark.asyncio
 async def test_anime_franchise(sqlite_sessionfactory):
 
@@ -258,11 +259,42 @@ async def test_anime_franchise(sqlite_sessionfactory):
         assert franchise.name == added_franchise.name
         assert franchise.name == stored_anime.franchise.name
 
+
 @pytest.mark.asyncio
 async def test_anime_paginate(sqlite_sessionfactory):
     uow = SQLUnitOfWork(sqlite_sessionfactory)
 
     async with uow:
 
-        anime = await uow.anime_repository.get_with_pagination(None, None, 0, 10)
-        assert len(anime) == 0
+        list_of_anime = await uow.anime_repository.get_with_pagination(None, None, 0, 10)
+        assert len(list_of_anime) == 0
+
+    genres = [Genre(id=uuid4(), name="Comedy")]
+
+    studios = [Studio(id=uuid4(), name="Doga Kobo")]
+
+    anime = Anime(
+        id=uuid4(),
+        name_en="Himouto! Umaru-chan",
+        name_jp="干物妹！うまるちゃん",
+        type=AnimeType.TV,
+        airing_status=AiringStatus.COMPLETE,
+        airing_start=date(2015, 7, 9),
+        airing_end=date(2015, 9, 24),
+        genres=genres,
+        studios=studios,
+    )
+
+    async with uow:
+        stored_anime = await uow.anime_repository.add(anime)
+
+    async with uow:
+        list_of_anime = await uow.anime_repository.get_with_pagination(None, None, 0, 10)
+        assert len(list_of_anime) == 1
+
+        genres = await uow.anime_repository.get_all_genres()
+        genre = genres[0]
+        assert genre.name == "Comedy"
+
+        list_of_anime = await uow.anime_repository.get_with_pagination(None, [genre], 0, 10)
+        assert len(list_of_anime) == 0
