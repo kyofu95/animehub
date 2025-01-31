@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class BaseUser(BaseModel):
@@ -8,7 +8,7 @@ class BaseUser(BaseModel):
 
 
 class UserCreateInputData(BaseUser):
-    password: str
+    password: str = Field(min_length=8)
 
 
 class UserBasicResponse(BaseUser):
