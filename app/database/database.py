@@ -12,6 +12,6 @@ connection_url = URL.create(
     database=database_settings.name,
 )
 
-async_engine = create_async_engine(connection_url, echo=True)
+async_engine = create_async_engine(connection_url, pool_size=10, max_overflow=2, echo=True)
 
 async_session_factory = async_sessionmaker(async_engine, expire_on_commit=False)
