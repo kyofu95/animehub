@@ -119,9 +119,7 @@ def start_mapper() -> None:
     mapper_registry.map_imperatively(
         AnimeEntity.Franchise,
         franchises_table,
-        properties={
-            "anime": relationship(AnimeEntity.Anime, back_populates="franchise", uselist=True)
-        },
+        properties={"anime": relationship(AnimeEntity.Anime, back_populates="franchise", uselist=True)},
     )
 
     mapper_registry.map_imperatively(
@@ -134,7 +132,14 @@ def start_mapper() -> None:
         AnimeEntity.Anime,
         anime_table,
         properties={
-            "episodes": relationship(AnimeEntity.Episode, back_populates="anime", uselist=True, lazy="selectin"),
+            "episodes": relationship(
+                AnimeEntity.Episode,
+                back_populates="anime",
+                uselist=True,
+                lazy="selectin",
+                cascade="all, delete-orphan",
+                order_by=episodes_table.c.aired_date,
+            ),
             "genres": relationship(AnimeEntity.Genre, secondary=anime_genre_association_table, lazy="selectin"),
             "studios": relationship(AnimeEntity.Studio, secondary=anime_studio_association_table, lazy="selectin"),
             "franchise": relationship(AnimeEntity.Franchise, back_populates="anime", uselist=False, lazy="selectin"),
