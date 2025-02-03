@@ -1,10 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
-
-from app.service.user import UserAlreadyExistsError
+from fastapi import APIRouter, status
 
 from .schemes.user import UserBasicResponse, UserCreateInputData
-from .utils.oauth import CurrentUser
 from .utils.di_deps import UserServiceDep
+from .utils.oauth import CurrentUser
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -21,17 +19,11 @@ async def create_user(user_data: UserCreateInputData, user_service: UserServiceD
         user_data (UserCreateInputData): The input data containing the login and password for the new user.
         user_service (UserServiceDep): The UserService dependency for handling user creation.
 
-    Raises:
-        HTTPException: A response object containing the basic details of the created user.
-
     Returns:
         UserBasicResponse: If a user with the given login already exists.
     """
 
-    try:
-        user = await user_service.create(user_data.login, user_data.password)
-    except UserAlreadyExistsError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST) from exc
+    user = await user_service.create(user_data.login, user_data.password)
 
     return UserBasicResponse.model_validate(user, from_attributes=True)
 
