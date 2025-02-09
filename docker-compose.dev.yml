@@ -41,6 +41,15 @@ services:
         aliases:
           - db
 
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - web
+    networks:
+      - services_network
+
 volumes:
   postgres_data:
 
