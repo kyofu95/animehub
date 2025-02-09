@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi_pagination import add_pagination
+from fastapi_pagination.utils import disable_installed_extensions_check
 
 from app.api.api import api_router
 from app.core.exceptions import AlreadyExistsError, DatabaseError, HashingError, NotFoundError
@@ -86,6 +87,8 @@ def create_app() -> FastAPI:
     install_exception_handlers(api)
 
     add_pagination(api)
+    # supress fastapi_pagination warning
+    disable_installed_extensions_check()
 
     api.add_middleware(
         CORSMiddleware,
