@@ -1,3 +1,5 @@
+import logging
+import sys
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -30,6 +32,23 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     start_mapper()
 
     yield
+
+
+def init_logger() -> None:
+    """
+    Initialize and configure the application logger.
+    """
+
+    logger = logging.getLogger("")
+
+    formatter = logging.Formatter("%(asctime)s [%(processName)s: %(process)d] [%(levelname)s] %(name)s: %(message)s")
+
+    console = logging.StreamHandler(sys.stdout)
+    console.setFormatter(formatter)
+
+    logger.addHandler(console)
+
+    logger.setLevel(logging.INFO)
 
 
 def install_exception_handlers(fast_app: FastAPI) -> None:
@@ -79,6 +98,11 @@ def create_app() -> FastAPI:
     Returns:
         FastAPI: The configured FastAPI application instance.
     """
+
+    init_logger()
+
+    logger = logging.getLogger(__name__)
+    logger.info("Application startup")
 
     api = FastAPI(lifespan=lifespan)
 
