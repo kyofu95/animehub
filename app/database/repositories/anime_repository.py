@@ -7,7 +7,6 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import collate
 
 from app.core.exceptions import NotFoundError
 from app.database.orm import anime_table, franchises_table, genres_table, studios_table
@@ -243,7 +242,7 @@ class AnimeSQLRepository(BaseAnimeRepository):
             )
 
         # default sorting by nocase ascending
-        stmt = stmt.order_by(collate(anime_table.c.name_en, "NOCASE").asc())
+        stmt = stmt.order_by(func.upper(anime_table.c.name_en).asc())
 
         result = await self.session.execute(stmt.offset(skip).limit(limit))
 
