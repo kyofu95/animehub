@@ -24,10 +24,14 @@ async def check_health() -> HealthResponce:
         HealthResponce: A response object indicating the health status of the application.
     """
 
+    session = async_session_factory()
+
     try:
-        session = async_session_factory()
         await asyncio.wait_for(session.execute(sql_text("SELECT 1")), timeout=1)
     except asyncio.TimeoutError as exc:
+        await session.close()
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE) from exc
+
+    await session.close()
 
     return HealthResponce(status="ok")
