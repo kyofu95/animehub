@@ -3,6 +3,7 @@ import sys
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
+from asgi_correlation_id import CorrelationIdFilter, CorrelationIdMiddleware, correlation_id
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -41,10 +42,15 @@ def init_logger() -> None:
 
     logger = logging.getLogger("")
 
-    formatter = logging.Formatter("%(asctime)s [%(processName)s: %(process)d] [%(levelname)s] %(name)s: %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s [%(processName)s: %(process)d] [%(levelname)s] [%(correlation_id)s] %(name)s: %(message)s"
+    )
+
+    cid_filter = CorrelationIdFilter(uuid_length=32)
 
     console = logging.StreamHandler(sys.stdout)
     console.setFormatter(formatter)
+    console.addFilter(cid_filter)
 
     logger.addHandler(console)
 
@@ -78,6 +84,7 @@ def install_exception_handlers(fast_app: FastAPI) -> None:
         return JSONResponse(
             content={"detail": str(exc)},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            headers={"X-Request-ID": correlation_id.get() or ""},
         )
 
     @fast_app.exception_handler(HashingError)
@@ -85,6 +92,7 @@ def install_exception_handlers(fast_app: FastAPI) -> None:
         return JSONResponse(
             content={"detail": str(exc)},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            headers={"X-Request-ID": correlation_id.get() or ""},
         )
 
 
@@ -114,12 +122,15 @@ def create_app() -> FastAPI:
     # supress fastapi_pagination warning
     disable_installed_extensions_check()
 
+    api.add_middleware(CorrelationIdMiddleware)
+
     api.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=["*"],
+        allow_headers=["X-Requested-With", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
     )
 
     return api
