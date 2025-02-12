@@ -141,6 +141,23 @@ dev = ["cogapp", "pre-commit", "pytest", "wheel"]
 tests = ["pytest"]
 
 [[package]]
+name = "asgi-correlation-id"
+version = "4.3.0"
+description = "Middleware correlating project logs to individual requests"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "asgi_correlation_id-4.3.0-py3-none-any.whl", hash = "sha256:f48548514e178f2906d6833aff6774dc46baf1dd2c561a7d5b5f88578e2b11cc"},
+    {file = "asgi_correlation_id-4.3.0.tar.gz", hash = "sha256:507b6b0ef388b8643768eb75f97af82c716b098ffc29b7fca115cc0329265007"},
+]
+
+[package.dependencies]
+starlette = ">=0.18"
+
+[package.extras]
+celery = ["celery"]
+
+[[package]]
 name = "async-timeout"
 version = "5.0.1"
 description = "Timeout context manager for asyncio programs"
@@ -1814,4 +1831,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e5c184fdd2ef420ad7fbd1abde094ba6f439d75ac0e608059879f8976ac4102d"
+content-hash = "aef95d46f4ccb8ed6670c8bfd67c498c95c2fc89646eb11f8694aa11c56d5c01"
