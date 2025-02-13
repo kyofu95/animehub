@@ -7,8 +7,6 @@ services:
       - ./:/app
     expose:
       - 8000
-    ports:
-      - 8000:8000
     environment:
       DATABASE_HOST: db
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
@@ -23,8 +21,6 @@ services:
     image: postgres:17.2
     volumes:
       - postgres_data:/var/lib/postgres/data
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
