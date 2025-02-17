@@ -5,8 +5,8 @@ from fastapi.security import OAuth2PasswordBearer
 
 from app.entity.user import User
 
-from .jwt import JWTDecodeError, decode_access_token
 from .di_deps import UserServiceDep
+from .jwt import TokenError, decode_access_token
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
@@ -31,7 +31,7 @@ async def get_user_from_token(token: str, user_service: UserServiceDep) -> User:
 
     try:
         user_id = decode_access_token(token)
-    except JWTDecodeError as exc:
+    except TokenError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc), headers={"WWW-Authenticate": "Bearer"}
         ) from exc

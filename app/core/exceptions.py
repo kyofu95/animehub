@@ -17,3 +17,7 @@ class DatabaseError(BaseError):
 
 class HashingError(BaseError):
     """This exception is raised when there's an issue with hashing or validation."""
+
+
+class TokenError(BaseError):
+    """This exception is raised when there is an error encoding or decoding a JWT."""

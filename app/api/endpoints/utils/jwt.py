@@ -5,10 +5,7 @@ from jwt import decode as jwt_decode, encode as jwt_encode
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 from app.core.config import jwt_settings
-
-
-class JWTDecodeError(Exception):
-    """Custom exception raised when there is an error decoding a JWT."""
+from app.core.exceptions import TokenError
 
 
 def encode_access_token(user_id: UUID) -> str:
@@ -39,26 +36,24 @@ def decode_access_token(token: str) -> UUID:
         token (str): The access token to decode.
 
     Raises:
-        JWTDecodeError: If the token is invalid, expired, or cannot be decoded.
+        TokenError: If the token is invalid, expired, or cannot be decoded.
 
     Returns:
         UUID: The id of the user associated with the token.
     """
 
     if not token:
-        raise JWTDecodeError("Invalid token")
+        raise TokenError("Invalid token")
 
     try:
-        payload = jwt_decode(
-            jwt=token, key=jwt_settings.secret_key, algorithms=[jwt_settings.algorithm]
-        )
+        payload = jwt_decode(jwt=token, key=jwt_settings.secret_key, algorithms=[jwt_settings.algorithm])
     except ExpiredSignatureError as exc:
-        raise JWTDecodeError("Expired token signature") from exc
+        raise TokenError("Expired token signature") from exc
     except InvalidTokenError as exc:
-        raise JWTDecodeError("Invalid token") from exc
+        raise TokenError("Invalid token") from exc
 
     user_id = payload.get("sub")
     if not user_id:
-        raise JWTDecodeError("Invalid payload")
+        raise TokenError("Invalid payload")
 
     return UUID(user_id)
