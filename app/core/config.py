@@ -58,6 +58,8 @@ class JWTSettings(BaseSettings):
     secret_key: str = Field(alias="JWT_SECRET_KEY")
     algorithm: str = "HS256"
     access_token_expiry: int = 25
+    # 5 days
+    refresh_token_expiry: int = 60 * 60 * 20
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
