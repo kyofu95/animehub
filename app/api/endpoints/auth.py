@@ -8,13 +8,13 @@ from .utils.jwt import encode_access_token, encode_refresh_token
 from .utils.di_deps import UserServiceDep
 from .utils.oauth import CurrentUserFromRefresh
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter(prefix="/token", tags=["Auth"])
 
 
 FormData = Annotated[OAuth2PasswordRequestForm, Depends()]
 
 
-@router.post("/token", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+@router.post("/", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def get_tokens(user_data: FormData, service: UserServiceDep) -> TokenResponse:
     """
     Authenticate a user and generate access and refresh tokens.
@@ -47,7 +47,7 @@ async def get_tokens(user_data: FormData, service: UserServiceDep) -> TokenRespo
     return TokenResponse(access_token=access_token, refesh_token=refresh_token, token_type="bearer")
 
 
-@router.post("/token/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+@router.post("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def refresh_tokens(user: CurrentUserFromRefresh) -> TokenResponse:
     """
     Refresh the access token using a valid refresh token.
