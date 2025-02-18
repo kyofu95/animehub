@@ -1,7 +1,4 @@
-# mypy: disable-error-code="no-redef"
-
 from dataclasses import asdict
-from typing import Callable
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -12,8 +9,6 @@ from app.core.exceptions import NotFoundError
 from app.database.orm import anime_table, franchises_table, genres_table, studios_table
 from app.entity.anime import Anime, Franchise, Genre, Studio
 from app.interface.repository.anime_repository import BaseAnimeRepository
-
-func: Callable
 
 
 class AnimeSQLRepository(BaseAnimeRepository):
