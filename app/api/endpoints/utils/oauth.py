@@ -7,7 +7,7 @@ from app.core.exceptions import TokenError
 from app.entity.user import User
 
 from .di_deps import UserServiceDep
-from .jwt import decode_access_token, decode_refresh_token
+from .jwt import decode_token
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
@@ -35,13 +35,8 @@ async def get_user_from_token(token: str, user_service: UserServiceDep, token_ty
 
     assert token_type in ["access", "refresh"]
 
-    if token_type == "access":
-        decode_func = decode_access_token
-    else:
-        decode_func = decode_refresh_token
-
     try:
-        user_id = decode_func(token)
+        user_id = decode_token(token, token_type)
     except TokenError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc), headers={"WWW-Authenticate": "Bearer"}
