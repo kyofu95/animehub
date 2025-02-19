@@ -19,8 +19,14 @@ async def get_tokens(user_data: FormData, service: UserServiceDep) -> TokenRespo
     """
     Authenticate a user and generate access and refresh tokens.
 
-    This endpoint validates user credentials and, if correct, returns a JSON response
-    containing a Bearer access token and a refresh token.
+    This endpoint supports two types of authentication flows:
+    - **Password Grant**: If the 'grant_type' is 'password', the user is authenticated using 
+        the provided username and password.
+    - **Refresh Token Grant**: If the 'grant_type' is 'refresh_token', the user is authenticated 
+        using the provided 'refresh_token'.
+
+    Upon successful authentication, the endpoint returns a JSON response containing a new access token 
+    and a refresh token, both encoded as JWTs.
 
     Args:
         user_data (FormData): The login credentials submitted by the user (username and password).
