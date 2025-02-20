@@ -55,7 +55,10 @@ def init_logger() -> None:
 
     logger.addHandler(console)
 
-    logger.setLevel(logging.INFO)
+    if common_settings.debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
 
 
 def install_exception_handlers(fast_app: FastAPI) -> None:
@@ -113,8 +116,15 @@ def create_app() -> FastAPI:
     logger = logging.getLogger(__name__)
     logger.info("Application startup")
 
-    docs_url = None if common_settings.debug else "/docs"
-    openapi_url = None if common_settings.debug else "/openapi.json"
+    if common_settings.debug:
+        logger.debug("Debug active")
+
+    docs_url = None
+    openapi_url = None
+
+    if common_settings.debug:
+        docs_url = "/docs"
+        openapi_url = "/openapi.json"
 
     api = FastAPI(
         debug=common_settings.debug,
