@@ -94,6 +94,3 @@ async def get_current_user_from_refresh_token(token: RefreshToken, user_service:
 
 CurrentUser = Annotated[User, Depends(get_current_user_from_access_token)]
 """Currently authenticated user, automatically resolved via dependency."""
-
-CurrentUserFromRefresh = Annotated[User, Depends(get_current_user_from_refresh_token)]
-"""Currently authenticated user, automatically resolved via dependency."""
