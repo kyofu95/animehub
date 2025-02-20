@@ -117,7 +117,13 @@ def create_app() -> FastAPI:
     openapi_url = None if common_settings.debug else "/openapi.json"
 
     api = FastAPI(
-        debug=common_settings.debug, openapi_url=openapi_url, docs_url=docs_url, redoc_url=None, lifespan=lifespan
+        debug=common_settings.debug,
+        title="AnimeHub",
+        version="0.9",
+        openapi_url=openapi_url,
+        docs_url=docs_url,
+        redoc_url=None,
+        lifespan=lifespan,
     )
 
     api.include_router(api_router)
