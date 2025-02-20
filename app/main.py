@@ -11,6 +11,7 @@ from fastapi_pagination import add_pagination
 from fastapi_pagination.utils import disable_installed_extensions_check
 
 from app.api.api import api_router
+from app.core.config import common_settings
 from app.core.exceptions import AlreadyExistsError, DatabaseError, HashingError, NotFoundError
 from app.database.orm import start_mapper
 
@@ -112,7 +113,12 @@ def create_app() -> FastAPI:
     logger = logging.getLogger(__name__)
     logger.info("Application startup")
 
-    api = FastAPI(lifespan=lifespan)
+    docs_url = None if common_settings.debug else "/docs"
+    openapi_url = None if common_settings.debug else "/openapi.json"
+
+    api = FastAPI(
+        debug=common_settings.debug, openapi_url=openapi_url, docs_url=docs_url, redoc_url=None, lifespan=lifespan
+    )
 
     api.include_router(api_router)
 

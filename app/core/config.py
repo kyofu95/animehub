@@ -12,6 +12,7 @@ class CommonSettings(BaseSettings):
     """
 
     debug: bool = Field(alias="DEBUG", default=False)
+    docs: bool = Field(alias="DOCS", default=False)
 
 
 common_settings = CommonSettings()

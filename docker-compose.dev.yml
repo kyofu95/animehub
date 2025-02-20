@@ -11,6 +11,7 @@ services:
       DATABASE_HOST: db
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       DEBUG: True
+      DOCS: True
     networks:
       services_network:
         aliases:
