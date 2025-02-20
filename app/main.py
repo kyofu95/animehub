@@ -122,7 +122,7 @@ def create_app() -> FastAPI:
     docs_url = None
     openapi_url = None
 
-    if common_settings.debug:
+    if common_settings.docs:
         docs_url = "/docs"
         openapi_url = "/openapi.json"
 
