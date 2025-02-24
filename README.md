@@ -8,6 +8,7 @@ AnimeHub is a platform for managing and tracking anime and series.
 - Updating information about watched episodes
 - IP-based request limiting using Nginx
 - Request logging with request ID
+- Refresh token blacklist
 - Deployment via Docker
 - Testing with pytest
 
@@ -16,6 +17,7 @@ AnimeHub is a platform for managing and tracking anime and series.
 - **Web Framework**: FastAPI
 - **Database**: PostgreSQL + SQLAlchemy + Alembic
 - **Nginx**
+- **Redis**
 - **Containerization**: Docker
 - **Testing**: pytest
 
