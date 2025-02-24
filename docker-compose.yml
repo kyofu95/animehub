@@ -7,6 +7,7 @@ services:
       - 8000
     environment:
       DATABASE_HOST: db
+      REDIS_HOST: redis
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     networks:
       services_network:
@@ -14,6 +15,19 @@ services:
           - web
     depends_on:
       - db
+      - redis
+
+  redis:
+    image: redis:7.4
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      services_network:
+        aliases:
+          - redis
 
   db:
     image: postgres:17.2
