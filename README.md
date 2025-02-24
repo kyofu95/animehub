@@ -33,11 +33,11 @@ Create a `.env` file and specify the necessary variables (example in `.env.sampl
 ### 3. Run with Docker
 For the production version:
 ```sh
-docker-compose -f docker-compose.yml up --build
+docker compose --env-file .env -f docker-compose.yml up --build 
 ```
 For development:
 ```sh
-docker-compose -f docker-compose.dev.yml up --build
+docker compose --env-file .env -f docker-compose.dev.yml up --build 
 ```
 
 ### 4. API Access
