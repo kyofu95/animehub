@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from .schemes.token import TokenResponse
-from .utils.di_deps import UserServiceDep
+from .utils.di_deps import RedisDep, UserServiceDep
 from .utils.jwt import encode_token
 from .utils.oauth import get_current_user_from_refresh_token
 from .utils.refresh_request_form import OAuth2PasswordAndRefreshRequestForm
@@ -13,19 +13,21 @@ router = APIRouter(prefix="/token", tags=["Auth"])
 
 FormData = Annotated[OAuth2PasswordAndRefreshRequestForm, Depends()]
 
+TOKEN_BLACKLIST = "token_blacklist"
+
 
 @router.post("/", response_model=TokenResponse, status_code=status.HTTP_200_OK)
-async def get_tokens(user_data: FormData, service: UserServiceDep) -> TokenResponse:
+async def get_tokens(user_data: FormData, service: UserServiceDep, redis: RedisDep) -> TokenResponse:
     """
     Authenticate a user and generate access and refresh tokens.
 
     This endpoint supports two types of authentication flows:
-    - **Password Grant**: If the 'grant_type' is 'password', the user is authenticated using 
+    - **Password Grant**: If the 'grant_type' is 'password', the user is authenticated using
         the provided username and password.
-    - **Refresh Token Grant**: If the 'grant_type' is 'refresh_token', the user is authenticated 
+    - **Refresh Token Grant**: If the 'grant_type' is 'refresh_token', the user is authenticated
         using the provided 'refresh_token'.
 
-    Upon successful authentication, the endpoint returns a JSON response containing a new access token 
+    Upon successful authentication, the endpoint returns a JSON response containing a new access token
     and a refresh token, both encoded as JWTs.
 
     Args:
@@ -40,9 +42,21 @@ async def get_tokens(user_data: FormData, service: UserServiceDep) -> TokenRespo
     """
 
     if user_data.grant_type == "refresh_token":
-        user = await get_current_user_from_refresh_token(token=user_data.refresh_token, user_service=service)
+        refresh_token = user_data.refresh_token
+
+        # redis-py type hinting is borked, so we ignore it
+        # https://github.com/redis/redis-py/issues/2399
+
+        in_blacklist = await redis.sismember(TOKEN_BLACKLIST, refresh_token)  # type: ignore
+        if bool(in_blacklist):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect refresh token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        user = await get_current_user_from_refresh_token(token=refresh_token, user_service=service)
     else:
-        user = await service.get_by_login_auth(user_data.username, user_data.password) # type: ignore
+        user = await service.get_by_login_auth(user_data.username, user_data.password)  # type: ignore
 
     if not user:
         raise HTTPException(
@@ -50,6 +64,14 @@ async def get_tokens(user_data: FormData, service: UserServiceDep) -> TokenRespo
             detail="Incorrect login or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    if user_data.grant_type == "refresh_token":
+        old_refresh_token = user_data.refresh_token
+
+        # redis-py type hinting is borked, so we ignore it
+        # https://github.com/redis/redis-py/issues/2399
+
+        await redis.sadd(TOKEN_BLACKLIST, old_refresh_token)  # type: ignore
 
     access_token = encode_token(user.id, "access")
     refresh_token = encode_token(user.id, "refresh")

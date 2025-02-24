@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi_pagination import add_pagination
 from fastapi_pagination.utils import disable_installed_extensions_check
+from redis.exceptions import RedisError
 
 from app.api.api import api_router
 from app.core.config import common_settings
@@ -96,6 +97,14 @@ def install_exception_handlers(fast_app: FastAPI) -> None:
         return JSONResponse(
             content={"detail": str(exc)},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            headers={"X-Request-ID": correlation_id.get() or ""},
+        )
+
+    @fast_app.exception_handler(RedisError)
+    async def redis_exc(_: Request, exc: RedisError) -> JSONResponse:
+        return JSONResponse(
+            content={"detail": str(exc)},
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             headers={"X-Request-ID": correlation_id.get() or ""},
         )
 

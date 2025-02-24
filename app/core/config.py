@@ -46,6 +46,24 @@ class DatabaseSettings(BaseSettings):
 database_settings = DatabaseSettings()
 
 
+class RedisSettings(BaseSettings):
+    """
+    Configuration settings for connecting to a Redis server.
+
+    Attributes:
+        host (str): The hostname or IP address of the Redis server.
+        port (int): The port number on which the Redis server is running.
+    """
+
+    host: str = Field(alias="REDIS_HOST")
+    port: int = Field(alias="REDIS_PORT")
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+redis_settings = RedisSettings()
+
+
 class JWTSettings(BaseSettings):
     """
     Configuration settings for JWT encoding and decoding.
