@@ -25,7 +25,7 @@ AnimeHub is a platform for managing and tracking anime and series.
 
 ### 1. Clone the Repository
 ```sh
-git clone https://github.com/kyofu95/animehub
+git clone https://github.com/kyofu95/animehub.git
 cd animehub
 ```
 
