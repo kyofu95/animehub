@@ -14,7 +14,7 @@ AnimeHub is a platform for managing and tracking anime and series.
 
 ## Technologies Used
 - **Programming Language**: Python 3.11
-- **Web Framework**: FastAPI
+- **Web Framework**: FastAPI + Pydantic
 - **Database**: PostgreSQL + SQLAlchemy + Alembic
 - **Nginx**
 - **Redis**
