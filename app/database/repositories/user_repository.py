@@ -84,7 +84,7 @@ class UserSQLRepository(BaseUserRepository):
 
         stored_entity = await self.session.get(User, entity.id)
         if not stored_entity:
-            raise NotFoundError("Entity has not beed stored in database, but were marked for update.")
+            raise NotFoundError("Entity has not been stored in database, but were marked for update.")
 
         await self.session.flush()
         await self.session.refresh(entity)
