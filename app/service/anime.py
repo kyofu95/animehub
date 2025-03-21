@@ -15,13 +15,13 @@ class AnimeService:
     """
 
     def __init__(self, uow: BaseUnitOfWork) -> None:
-        self.uow = uow
         """
         Constructor.
 
         Args:
             uow (BaseUnitOfWork): An instance of BaseUnitOfWork for managing sessions and user repository.
         """
+        self.uow = uow
 
     async def create(
         self,
