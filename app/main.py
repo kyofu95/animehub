@@ -1,7 +1,7 @@
 import logging
 import sys
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from asgi_correlation_id import CorrelationIdFilter, CorrelationIdMiddleware, correlation_id
 from fastapi import FastAPI, Request, status
@@ -18,7 +18,7 @@ from app.database.orm import start_mapper
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
     """
     Define the application's lifespan for startup and shutdown events.
 
@@ -31,21 +31,17 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     Yields:
         None: Indicates no additional setup or teardown logic is required.
     """
-
     start_mapper()
 
     yield
 
 
 def init_logger() -> None:
-    """
-    Initialize and configure the application logger.
-    """
-
+    """Initialize and configure the application logger."""
     logger = logging.getLogger("")
 
     formatter = logging.Formatter(
-        "%(asctime)s [%(processName)s: %(process)d] [%(levelname)s] [%(correlation_id)s] %(name)s: %(message)s"
+        "%(asctime)s [%(processName)s: %(process)d] [%(levelname)s] [%(correlation_id)s] %(name)s: %(message)s",
     )
 
     cid_filter = CorrelationIdFilter(uuid_length=32)
@@ -65,6 +61,7 @@ def init_logger() -> None:
 def install_exception_handlers(fast_app: FastAPI) -> None:
     """
     Install custom exception handlers for the FastAPI application.
+
     This function registers exception handlers for specific application-level errors.
     These handlers capture exceptions raised during the request lifecycle and return
     appropriate HTTP responses with error messages.
@@ -72,7 +69,6 @@ def install_exception_handlers(fast_app: FastAPI) -> None:
     Args:
         fast_app (FastAPI): The FastAPI application instance.
     """
-
     @fast_app.exception_handler(NotFoundError)
     async def not_found_exc(_: Request, exc: NotFoundError) -> JSONResponse:
         return JSONResponse(content={"detail": str(exc)}, status_code=status.HTTP_404_NOT_FOUND)
@@ -119,7 +115,6 @@ def create_app() -> FastAPI:
     Returns:
         FastAPI: The configured FastAPI application instance.
     """
-
     init_logger()
 
     logger = logging.getLogger(__name__)
