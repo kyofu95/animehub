@@ -15,6 +15,4 @@ def get_redis() -> Redis:
     Returns:
         Redis: A Redis client instance with connection pooling and response decoding enabled.
     """
-
-    redis = Redis(connection_pool=pool, decode_responses=True)
-    return redis
+    return Redis(connection_pool=pool, decode_responses=True)

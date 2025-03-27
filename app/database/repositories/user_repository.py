@@ -10,19 +10,16 @@ from app.interface.repository.user_repository import BaseUserRepository
 
 
 class UserSQLRepository(BaseUserRepository):
-    """
-    A SQL User repository.
-    """
+    """A SQL User repository."""
 
     def __init__(self, async_session: AsyncSession) -> None:
         """
-        Constructor.
+        Initialize UserSQLRepository.
 
         Args:
             async_session (AsyncSession): SQLAlchemy async session, typically obtained
             with DI
         """
-
         self.session = async_session
 
     async def add(self, entity: User) -> User:
@@ -35,7 +32,6 @@ class UserSQLRepository(BaseUserRepository):
         Returns:
             User: returns entity
         """
-
         self.session.add(entity)
         await self.session.flush()
         await self.session.refresh(entity)
@@ -52,7 +48,6 @@ class UserSQLRepository(BaseUserRepository):
         Returns:
             User | None: return entity if found, otherwise None
         """
-
         return await self.session.get(User, id_)
 
     async def get_by_login(self, login: str) -> User | None:
@@ -65,12 +60,12 @@ class UserSQLRepository(BaseUserRepository):
         Returns:
             User | None: return entity if found, otherwise None
         """
-
         result = await self.session.execute(select(User).where(user_table.c.login == login))
         return result.scalar_one_or_none()
 
     async def update(self, entity: User) -> User:
-        """Update an entity.
+        """
+        Update an entity.
 
         Args:
             entity (Anime): enitity
@@ -81,7 +76,6 @@ class UserSQLRepository(BaseUserRepository):
         Returns:
             Anime: updated entity
         """
-
         stored_entity = await self.session.get(User, entity.id)
         if not stored_entity:
             raise NotFoundError("Entity has not been stored in database, but were marked for update.")
@@ -92,11 +86,11 @@ class UserSQLRepository(BaseUserRepository):
         return entity
 
     async def delete(self, entity: User) -> None:
-        """Remove entity from database.
+        """
+        Remove entity from database.
 
         Args:
             entity (User): entity to remove
         """
-
         await self.session.delete(entity)
         await self.session.flush()

@@ -12,19 +12,16 @@ from app.interface.repository.anime_repository import BaseAnimeRepository
 
 
 class AnimeSQLRepository(BaseAnimeRepository):
-    """
-    A SQL Anime repository.
-    """
+    """A SQL Anime repository."""
 
     def __init__(self, async_session: AsyncSession) -> None:
         """
-        Constructor.
+        Initialize AnimeSQLRepository.
 
         Args:
             async_session (AsyncSession): SQLAlchemy async session, typically obtained
             with DI
         """
-
         self.session = async_session
 
     async def add(self, entity: Anime) -> Anime:
@@ -37,7 +34,6 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             Anime: returns entity
         """
-
         self.session.add(entity)
         await self.session.flush()
         await self.session.refresh(entity)
@@ -54,7 +50,6 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             Anime | None: return entity if found, otherwise None
         """
-
         return await self.session.get(Anime, id_)
 
     async def get_by_name(self, name: str) -> Anime | None:
@@ -67,7 +62,6 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             Anime | None: return entity if found, otherwise None
         """
-
         result = await self.session.execute(select(Anime).where(anime_table.c.name_en == name))
         return result.scalar_one_or_none()
 
@@ -84,7 +78,6 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             Anime: updated entity
         """
-
         stored_entity = await self.session.get(Anime, entity.id)
         if not stored_entity:
             raise NotFoundError("Entity has not been stored in database, but were marked for update.")
@@ -101,13 +94,12 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Args:
             entity (Anime): entity to remove
         """
-
         await self.session.delete(entity)
         await self.session.flush()
 
     async def add_genres(self, genres: list[Genre]) -> list[Genre]:
         """
-        Inserts new genre entities into database.
+        Insert new genre entities into database.
 
         This method inserts multiple 'Genre' records into the database.
         If a genre in the list already exists, the operation does nothing
@@ -119,7 +111,6 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             list[Genre]: list of stored genres
         """
-
         if not genres:
             return []
 
@@ -140,14 +131,13 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             list[Genre]: list of genres.
         """
-
         result = await self.session.execute(select(Genre))
 
         return list(result.scalars().all())
 
     async def add_studios(self, studios: list[Studio]) -> list[Studio]:
         """
-        Inserts new studio entities into database.
+        Insert new studio entities into database.
 
         This method inserts multiple 'Studio' records into the database.
         If any studio in the list already exists, the operation does nothing
@@ -159,7 +149,6 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             list[Studio]: list of stored studios
         """
-
         if not studios:
             return []
 
@@ -180,14 +169,13 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             list[Studio]: list of studios.
         """
-
         result = await self.session.execute(select(Studio))
 
         return list(result.scalars().all())
 
     async def add_franchise(self, franchise: Franchise) -> Franchise:
         """
-        Inserts new franchise entity into database.
+        Insert new franchise entity into database.
 
         If a franchise with the same name already exists, the operation does nothing and fetches the existing record.
 
@@ -197,7 +185,6 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             Franchise: The 'Franchise' object after it has been successfully added or retrieved.
         """
-
         franchise_dicts = [asdict(franchise)]
         await self.session.execute(pg_insert(Franchise).values(franchise_dicts).on_conflict_do_nothing())
 
@@ -205,7 +192,7 @@ class AnimeSQLRepository(BaseAnimeRepository):
         return select_result.scalar_one()
 
     async def get_with_pagination(
-        self, include_genres: list[Genre] | None, excluded_genres: list[Genre] | None, skip: int = 0, limit: int = 10
+        self, include_genres: list[Genre] | None, excluded_genres: list[Genre] | None, skip: int = 0, limit: int = 10,
     ) -> list[Anime]:
         """
         Retrieve a paginated list of Anime objects based on included and excluded genres.
@@ -221,19 +208,18 @@ class AnimeSQLRepository(BaseAnimeRepository):
         Returns:
             list[Anime]: A list of Anime objects matching the specified criteria.
         """
-
         stmt = select(Anime)
 
         if include_genres:
             included_genre_names = [g.name for g in include_genres]
             stmt = stmt.join(Genre, anime_table.c.id == genres_table.c.id).where(
-                genres_table.c.name.in_(included_genre_names)
+                genres_table.c.name.in_(included_genre_names),
             )
 
         if excluded_genres:
             excluded_genre_names = [g.name for g in excluded_genres]
             stmt = stmt.join(Genre, anime_table.c.id == genres_table.c.id).where(
-                genres_table.c.name.not_in(excluded_genre_names)
+                genres_table.c.name.not_in(excluded_genre_names),
             )
 
         # default sorting by nocase ascending
