@@ -7,9 +7,7 @@ hasher = PasswordHasher()
 
 
 class Hasher:
-    """
-    Password hasher utility class.
-    """
+    """Password hasher utility class."""
 
     @staticmethod
     def hash(password: str) -> str:
@@ -25,7 +23,6 @@ class Hasher:
         Returns:
             str: Encoded password.
         """
-
         try:
             encoded = hasher.hash(password)
         except Argon2Error as exc:
@@ -48,7 +45,6 @@ class Hasher:
         Returns:
             bool: Returns True if both passwords are equal, owerwise False.
         """
-
         try:
             password_match = hasher.verify(hash=hashed_password, password=plain_password)
         except VerifyMismatchError:

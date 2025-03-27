@@ -11,8 +11,12 @@ class AlreadyExistsError(BaseError):
 
 
 class DatabaseError(BaseError):
-    """This exception is raised when there's an issue interacting with the database, such as connection failures,
-    query execution errors, or data inconsistencies."""
+    """
+    Raised for database interaction issues.
+
+    This may occur due to connection failures, query execution errors, or data inconsistencies.
+    """
+
 
 
 class HashingError(BaseError):

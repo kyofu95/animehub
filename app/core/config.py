@@ -9,6 +9,8 @@ class CommonSettings(BaseSettings):
     Attributes:
         debug (bool): A flag indicating whether debug mode is enabled.
             Defaults to `False`. Mapped from the `DEBUG` environment variable.
+        docs (bool): Indicates whether API documentation is enabled.
+            Defaults to `False`. Mapped from the `DOCS` environment variable.
     """
 
     debug: bool = Field(alias="DEBUG", default=False)
@@ -72,6 +74,7 @@ class JWTSettings(BaseSettings):
         secret_key (str): The secret key used to sign and verify the JWT.
         algorithm (str): The cryptographic algorithm used for encoding the JWT. Defaults to "HS256".
         access_token_expiry (int): The time in minutes before the access token expires. Defaults to 25 minutes.
+        refresh_token_expiry (int): The time in seconds before the refresh token expires. Defaults to 5 days.
     """
 
     secret_key: str = Field(alias="JWT_SECRET_KEY")
