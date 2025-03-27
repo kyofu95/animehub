@@ -36,9 +36,7 @@ class AiringStatus(StrEnum):
 
 @dataclass
 class Genre:
-    """
-    A genre entity.
-    """
+    """A genre entity."""
 
     id: UUID
     name: str
@@ -46,9 +44,7 @@ class Genre:
 
 @dataclass
 class Studio:
-    """
-    A studio entity.
-    """
+    """A studio entity."""
 
     id: UUID
     name: str
@@ -56,9 +52,7 @@ class Studio:
 
 @dataclass
 class Franchise:
-    """
-    A franchise entity.
-    """
+    """A franchise entity."""
 
     id: UUID
     name: str
@@ -69,9 +63,7 @@ class Franchise:
 
 @dataclass
 class Episode:
-    """
-    An anime episode entity. Contains data of individual episode.
-    """
+    """An anime episode entity. Contains data of individual episode."""
 
     id: UUID
     name: str
@@ -83,9 +75,7 @@ class Episode:
 
 @dataclass
 class Anime:
-    """
-    Represents an anime entity within the application.
-    """
+    """Represents an anime entity within the application."""
 
     id: UUID
     name_en: str

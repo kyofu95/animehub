@@ -7,9 +7,7 @@ from .watchlist import WatchingEntry
 
 @dataclass
 class User:
-    """
-    Represents a user entity within the application.
-    """
+    """Represents a user entity within the application."""
 
     id: UUID
     login: str

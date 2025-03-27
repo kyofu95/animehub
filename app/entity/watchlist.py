@@ -26,9 +26,7 @@ class WatchingStatus(Enum):
 
 @dataclass
 class WatchingEntry:
-    """
-    A watching table. Represents the watching status of an episodic animation or movie for a user.
-    """
+    """A watching table. Represents the watching status of an episodic animation or movie for a user."""
 
     id: UUID
     status: WatchingStatus
