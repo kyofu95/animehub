@@ -19,17 +19,16 @@ class UserService:
 
     def __init__(self, uow: BaseUnitOfWork) -> None:
         """
-        Constructor.
+        Initialize UserService.
 
         Args:
             uow (BaseUnitOfWork): An instance of BaseUnitOfWork for managing sessions and user repository.
         """
-
         self.uow = uow
 
     async def create(self, login: str, password: str) -> User:
         """
-        Creates a new user with the given login and password.
+        Create a new user with the given login and password.
 
         Args:
             login (str): The login identifier for the new user.
@@ -54,10 +53,10 @@ class UserService:
             return await uow.user_repository.add(new_user)
 
     async def create_watching_entry(
-        self, status: WatchingStatus, num_watched_episodes: int, user: User, anime: Anime
+        self, status: WatchingStatus, num_watched_episodes: int, user: User, anime: Anime,
     ) -> WatchingEntry:
         """
-        Adds a new entry to the user's watchlist.
+        Add a new entry to the user's watchlist.
 
         Args:
             status (WatchingStatus): The current status of the anime being watched.
@@ -71,7 +70,6 @@ class UserService:
         Returns:
             Watching: The newly created Watching object.
         """
-
         async with self.uow as uow:
 
             for item in user.watching_list:
@@ -100,7 +98,6 @@ class UserService:
         Returns:
             WatchingEntry: The 'WatchingEntry' object that was removed from the user's watchlist.
         """
-
         async with self.uow as uow:
 
             found_entry: WatchingEntry | None = None
@@ -132,7 +129,6 @@ class UserService:
         Returns:
             WatchingEntry: The updated 'WatchingEntry' object.
         """
-
         async with self.uow as uow:
 
             entry: WatchingEntry | None = None
@@ -142,7 +138,8 @@ class UserService:
                     entry = e
 
             if not entry:
-                raise NotFoundError(f"Watchlist entry with ID \'{entry_id}\' not found")
+                msg = f"Watchlist entry with ID '{entry_id}' not found"
+                raise NotFoundError(msg)
 
             for k, v in update_dict.items():
                 existing_value = entry.__dict__[k]
@@ -155,7 +152,7 @@ class UserService:
 
     async def get_by_login_auth(self, login: str, password: str) -> User | None:
         """
-        Retrieves a user by their login and verifies their password.
+        Retrieve a user by their login and verifies their password.
 
         Args:
             login (str): The login identifier of the user.
@@ -164,7 +161,6 @@ class UserService:
         Returns:
             User | None: The User object if authentication is successful, otherwise None.
         """
-
         async with self.uow as uow:
 
             user = await uow.user_repository.get_by_login(login)
@@ -178,7 +174,7 @@ class UserService:
 
     async def get_by_id(self, id_: UUID) -> User | None:
         """
-        Retrieves a user by their id.
+        Retrieve a user by their id.
 
         Args:
             id_ (UUID): The id of the user to retrieve.
@@ -186,6 +182,5 @@ class UserService:
         Returns:
             User | None: The User object if found, otherwise None.
         """
-
         async with self.uow as uow:
             return await uow.user_repository.get_by_id(id_)

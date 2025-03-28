@@ -16,7 +16,7 @@ class AnimeService:
 
     def __init__(self, uow: BaseUnitOfWork) -> None:
         """
-        Constructor.
+        Initialize AnimeService.
 
         Args:
             uow (BaseUnitOfWork): An instance of BaseUnitOfWork for managing sessions and user repository.
@@ -41,7 +41,7 @@ class AnimeService:
         id_: UUID | None = None,
     ) -> Anime:
         """
-        Creates a new anime instance.
+        Create a new anime instance.
 
         Args:
             english_name (str): The English name of the anime.
@@ -68,7 +68,6 @@ class AnimeService:
         Returns:
             Anime | None: The newly created anime instance.
         """
-
         async with self.uow as uow:
 
             existing_anime = await uow.anime_repository.get_by_name(english_name)
@@ -110,7 +109,7 @@ class AnimeService:
 
     async def get_by_id(self, id_: UUID) -> Anime | None:
         """
-        Retrieves an anime instance by its id.
+        Retrieve an anime instance by its id.
 
         Args:
             id_ (UUID): The id of the anime to retrieve.
@@ -118,13 +117,12 @@ class AnimeService:
         Returns:
             Anime | None: The retrieved anime instance, or None if not found.
         """
-
         async with self.uow as uow:
             return await uow.anime_repository.get_by_id(id_)
 
     async def get_by_name(self, name: str) -> Anime | None:
         """
-        Retrieves an anime instance by its name.
+        Retrieve an anime instance by its name.
 
         Args:
             name (str): The name of the anime to retrieve.
@@ -132,13 +130,12 @@ class AnimeService:
         Returns:
             Anime | None: The retrieved anime instance, or None if not found.
         """
-
         async with self.uow as uow:
             return await uow.anime_repository.get_by_name(name)
 
     async def update(self, id_: UUID, update_dict: dict[str, Any]) -> Anime:
         """
-        Updates an existing anime with the provided ID.
+        Update an existing anime with the provided ID.
 
         Args:
             id_ (UUID): The id of the anime to update.
@@ -150,11 +147,11 @@ class AnimeService:
         Returns:
             Anime: The updated anime instance.
         """
-
         async with self.uow as uow:
             anime = await uow.anime_repository.get_by_id(id_)
             if not anime:
-                raise NotFoundError(f"Anime with id '{id_}' does not exist.")
+                msg = f"Anime with id '{id_}' does not exist."
+                raise NotFoundError(msg)
 
             for k, v in update_dict.items():
                 # skip complex fields for now
@@ -190,7 +187,7 @@ class AnimeService:
             if update_dict.get("franchise"):
                 new_franchise: dict[str, str] = update_dict["franchise"]
                 anime.franchise = await uow.anime_repository.add_franchise(
-                    Franchise(id=uuid4(), name=new_franchise["name"], anime_id=anime.id)
+                    Franchise(id=uuid4(), name=new_franchise["name"], anime_id=anime.id),
                 )
             else:
                 anime.franchise = None
@@ -198,7 +195,7 @@ class AnimeService:
             return await uow.anime_repository.update(anime)
 
     async def get_with_pagination(
-        self, include_genres: list[str] | None, excluded_genres: list[str] | None, skip: int = 0, limit: int = 10
+        self, include_genres: list[str] | None, excluded_genres: list[str] | None, skip: int = 0, limit: int = 10,
     ) -> list[Anime]:
         """
         Retrieve a paginated list of Anime objects based on included and excluded genre names.
@@ -216,7 +213,6 @@ class AnimeService:
         Returns:
             list[Anime]: _description_
         """
-
         async with self.uow as uow:
             all_genres = await uow.anime_repository.get_all_genres()
 
@@ -238,11 +234,9 @@ class AnimeService:
                     if genre:
                         processed_exclude_genres.append(genre)
 
-            anime = await uow.anime_repository.get_with_pagination(
+            return await uow.anime_repository.get_with_pagination(
                 include_genres=processed_include_genres,
                 excluded_genres=processed_exclude_genres,
                 skip=skip,
                 limit=limit,
             )
-
-            return anime
