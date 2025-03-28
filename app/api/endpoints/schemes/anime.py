@@ -13,14 +13,14 @@ class BaseAnime(BaseModel):
     name_jp: str | None = Field(None, title="Japanese Name", description="The original Japanese title of the anime.")
     type: AnimeType = Field(title="Anime Type", description="The type of anime, such as TV series, movie, OVA, etc.")
     total_number_of_episodes: int | None = Field(
-        None, title="Total Episodes", description="Total number of episodes in the anime, if known."
+        None, title="Total Episodes", description="Total number of episodes in the anime, if known.",
     )
     airing_status: AiringStatus = Field(
-        title="Airing Status", description="Current airing status of the anime (e.g., ongoing, completed)."
+        title="Airing Status", description="Current airing status of the anime (e.g., ongoing, completed).",
     )
     airing_start: date = Field(title="Airing Start Date", description="The date when the anime started airing.")
     airing_end: date | None = Field(
-        None, title="Airing End Date", description="The date when the anime ended airing, if applicable."
+        None, title="Airing End Date", description="The date when the anime ended airing, if applicable.",
     )
 
 
@@ -63,14 +63,14 @@ class DetailedAnime(BaseAnime):
 
     episodes: list[Episode] | None = Field(None, title="Episodes", description="A list of episodes in the anime.")
     genres: list[GenreRequest] | None = Field(
-        None, title="Genres", description="A list of genres associated with the anime."
+        None, title="Genres", description="A list of genres associated with the anime.",
     )
     studios: list[StudioRequest] | None = Field(
-        None, title="Studios", description="A list of animation studios involved in the anime."
+        None, title="Studios", description="A list of animation studios involved in the anime.",
     )
 
     franchise: FranchiseRequest | None = Field(
-        None, title="Franchise", description="The franchise this anime belongs to, if applicable."
+        None, title="Franchise", description="The franchise this anime belongs to, if applicable.",
     )
 
 

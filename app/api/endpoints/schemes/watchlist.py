@@ -15,7 +15,9 @@ class BaseWatchlistEntry(BaseModel):
         description="Current watching status of the anime (e.g., Watching, Completed, Dropped).",
     )
     num_watched_episodes: int = Field(
-        0, title="Watched episodes", description="Number of episodes watched by the user."
+        0,
+        title="Watched episodes",
+        description="Number of episodes watched by the user.",
     )
 
 
