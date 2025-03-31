@@ -33,6 +33,7 @@ async def get_tokens(user_data: FormData, service: UserServiceDep, redis: RedisD
     Args:
         user_data (FormData): The login credentials submitted by the user (username and password).
         service (UserServiceDep): The UserService dependency for user authentication.
+        redis (RedisDep): The Redis dependency for refresh token blacklisting.
 
     Raises:
         HTTPException(401): If authentication fails due to incorrect login or password.
@@ -40,7 +41,6 @@ async def get_tokens(user_data: FormData, service: UserServiceDep, redis: RedisD
     Returns:
         TokenResponse: A response containing the access token, refresh token, and token type.
     """
-
     if user_data.grant_type == "refresh_token":
         refresh_token = user_data.refresh_token
 

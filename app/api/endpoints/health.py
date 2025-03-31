@@ -14,6 +14,7 @@ router = APIRouter(prefix="/health", tags=["Health"])
 async def check_health() -> HealthResponce:
     """
     Perform a health check on the application.
+
     This endpoint checks the health status of the application by executing a database query.
     If the database is responsive within the timeout limit, the service is considered healthy.
 
@@ -23,12 +24,11 @@ async def check_health() -> HealthResponce:
     Returns:
         HealthResponce: A response object indicating the health status of the application.
     """
-
     session = async_session_factory()
 
     try:
         await asyncio.wait_for(session.execute(sql_text("SELECT 1")), timeout=1)
-    except asyncio.TimeoutError as exc:
+    except TimeoutError as exc:
         await session.close()
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE) from exc
 

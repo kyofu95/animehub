@@ -42,7 +42,6 @@ async def get_anime_list(
     Raises:
         HTTPException: If any error occurs in fetching or filtering Anime data.
     """
-
     list_of_anime = await anime_service.get_with_pagination(include_genres, exclude_genres, params.offset, params.limit)
 
     # cast 'Any' type hint to supress mypy
@@ -69,11 +68,11 @@ async def create_anime(anime_request: DetailedAnimeRequest, anime_service: Anime
     Returns:
         BaseAnimeResponse: A response object containing the details of the created anime.
     """
-
     existing_anime = await anime_service.get_by_name(anime_request.name_en)
     if existing_anime:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Anime with name '{anime_request.name_en}' already exists"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Anime with name '{anime_request.name_en}' already exists",
         )
 
     anime_id = uuid4()
@@ -125,10 +124,13 @@ async def create_anime(anime_request: DetailedAnimeRequest, anime_service: Anime
 
 @router.patch("/{anime_id}", response_model=DetailedAnimeResponse, status_code=status.HTTP_200_OK)
 async def update_anime_by_id(
-    anime_id: UUID, anime_service: AnimeServiceDep, anime_request: DetailedAnimeRequest
+    anime_id: UUID,
+    anime_service: AnimeServiceDep,
+    anime_request: DetailedAnimeRequest,
 ) -> DetailedAnimeResponse:
     """
     Update an existing anime by its ID.
+
     This endpoint updates the details of an existing anime record based on the provided anime ID
     and request body. The updated anime details are returned in the response.
 
@@ -140,7 +142,6 @@ async def update_anime_by_id(
     Returns:
         DetailedAnimeResponse: The updated anime details serialized into the response model.
     """
-
     anime_request_dict = anime_request.model_dump()
 
     anime = await anime_service.update(anime_id, anime_request_dict)
@@ -166,7 +167,6 @@ async def get_anime_by_id(anime_id: UUID, anime_service: AnimeServiceDep) -> Bas
     Returns:
         BaseAnimeResponse: A response object containing the details of the anime.
     """
-
     anime = await anime_service.get_by_id(anime_id)
     if not anime:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anime with id '{anime_id}' doesn't exist.")
@@ -193,7 +193,6 @@ async def get_anime_details_by_id(anime_id: UUID, anime_service: AnimeServiceDep
     Returns:
         DetailedAnimeResponse: A response object containing the detailed information of the anime.
     """
-
     anime = await anime_service.get_by_id(anime_id)
     if not anime:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anime with id '{anime_id}' doesn't exist.")

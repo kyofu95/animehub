@@ -22,7 +22,6 @@ async def create_user(user_data: UserCreateInputData, user_service: UserServiceD
     Returns:
         UserBasicResponse: If a user with the given login already exists.
     """
-
     user = await user_service.create(user_data.login, user_data.password)
 
     return UserBasicResponse.model_validate(user, from_attributes=True)
@@ -41,5 +40,4 @@ async def get_user_me(user: CurrentUser) -> UserBasicResponse:
     Returns:
         UserBasicResponse: A response object containing the details of the current user.
     """
-
     return UserBasicResponse.model_validate(user, from_attributes=True)
