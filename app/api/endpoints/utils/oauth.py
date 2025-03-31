@@ -20,11 +20,12 @@ RefreshToken = Annotated[str, Depends(oauth_scheme)]
 
 async def get_user_from_token(token: str, user_service: UserServiceDep, token_type: str) -> User:
     """
-    Retrieves a user from the given token.
+    Retrieve a user from the given token.
 
     Args:
         token (str): The JWT access or refresh token provided by the user.
         user_service (UserServiceDep): The user service dependency for accessing user data.
+        token_type (str): The expected type of the token. Must be either "access" or "refresh".
 
     Returns:
         User: The user entity associated with the token.
@@ -32,20 +33,21 @@ async def get_user_from_token(token: str, user_service: UserServiceDep, token_ty
     Raises:
         HTTPException: If the token is invalid, expired, or if the user cannot be found.
     """
-
-    assert token_type in ["access", "refresh"]
-
     try:
         user_id = decode_token(token, token_type)
     except TokenError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc), headers={"WWW-Authenticate": "Bearer"}
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+            headers={"WWW-Authenticate": "Bearer"},
         ) from exc
 
     user = await user_service.get_by_id(user_id)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.", headers={"WWW-Authenticate": "Bearer"}
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authorized.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     return user
@@ -53,7 +55,7 @@ async def get_user_from_token(token: str, user_service: UserServiceDep, token_ty
 
 async def get_current_user_from_access_token(token: AccessToken, user_service: UserServiceDep) -> User:
     """
-    Retrieves the currently authenticated user based on the access token.
+    Retrieve the currently authenticated user based on the access token.
 
     Args:
         token (AccessToken): The access token obtained via OAuth2PasswordBearer.
@@ -65,7 +67,6 @@ async def get_current_user_from_access_token(token: AccessToken, user_service: U
     Raises:
         HTTPException: If the token is missing or the user cannot be authenticated.
     """
-
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
@@ -74,7 +75,7 @@ async def get_current_user_from_access_token(token: AccessToken, user_service: U
 
 async def get_current_user_from_refresh_token(token: RefreshToken, user_service: UserServiceDep) -> User:
     """
-    Retrieves the currently authenticated user based on the refresh token.
+    Retrieve the currently authenticated user based on the refresh token.
 
     Args:
         token (RefreshToken): The access token obtained via OAuth2PasswordBearer.

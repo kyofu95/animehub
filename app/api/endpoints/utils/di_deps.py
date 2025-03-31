@@ -17,7 +17,6 @@ def get_user_service() -> UserService:
     Returns:
         UserService: An instance of the UserService.
     """
-
     uow = SQLUnitOfWork(async_session_factory)
     return UserService(uow)
 
@@ -29,7 +28,6 @@ def get_anime_service() -> AnimeService:
     Returns:
         AnimeService: An instance of the AnimeService.
     """
-
     uow = SQLUnitOfWork(async_session_factory)
     return AnimeService(uow)
 

@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 class OAuth2PasswordAndRefreshRequestForm(OAuth2PasswordRequestForm):
     """
-    Extends OAuth2PasswordRequestForm to support both password and refresh token grant types.
+    Extend OAuth2PasswordRequestForm to support both password and refresh token grant types.
 
     This form class is a modified version of FastAPI's OAuth2PasswordRequestForm. In addition to the
     standard fields (username, password, client_id, client_secret, and scope), it also accepts a
@@ -21,7 +21,7 @@ class OAuth2PasswordAndRefreshRequestForm(OAuth2PasswordRequestForm):
         scope: str = Form(default=""),
         client_id: str | None = Form(default=None),
         client_secret: str | None = Form(default=None),
-    ):
+    ) -> None:
         super().__init__(
             grant_type=grant_type,
             username=username,

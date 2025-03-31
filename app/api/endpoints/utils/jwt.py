@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
-from jwt import decode as jwt_decode, encode as jwt_encode
+from jwt import decode as jwt_decode
+from jwt import encode as jwt_encode
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 
 from app.core.config import jwt_settings
@@ -10,7 +11,7 @@ from app.core.exceptions import TokenError
 
 def encode_token(user_id: UUID, token_type: str) -> str:
     """
-    Encodes a user id into an access or refresh token.
+    Encode a user id into an access or refresh token.
 
     Args:
         user_id (UUID): The id of the user to be encoded into the token.
@@ -19,7 +20,6 @@ def encode_token(user_id: UUID, token_type: str) -> str:
     Returns:
         str: The encoded JWT token as a string.
     """
-
     if token_type not in ["access", "refresh"]:
         raise TokenError("Invalid token type")
 
@@ -62,7 +62,6 @@ def decode_token(token: str, token_type: str) -> UUID:
     Returns:
         UUID: The user ID extracted from the token.
     """
-
     if not token:
         raise TokenError("Invalid token")
 
@@ -72,9 +71,11 @@ def decode_token(token: str, token_type: str) -> UUID:
     try:
         payload = jwt_decode(jwt=token, key=jwt_settings.secret_key, algorithms=[jwt_settings.algorithm])
     except ExpiredSignatureError as exc:
-        raise TokenError(f"Expired {token_type} token signature") from exc
+        msg = f"Expired {token_type} token signature"
+        raise TokenError(msg) from exc
     except InvalidTokenError as exc:
-        raise TokenError(f"Invalid {token_type} token") from exc
+        msg = f"Invalid {token_type} token"
+        raise TokenError(msg) from exc
 
     token_type_in_payload = payload.get("type")
     if not token_type_in_payload or token_type_in_payload not in ["access", "refresh"]:
@@ -85,6 +86,7 @@ def decode_token(token: str, token_type: str) -> UUID:
 
     user_id = payload.get("sub")
     if not user_id:
-        raise TokenError(f"Invalid {token_type} token payload")
+        msg = f"Invalid {token_type} token payload"
+        raise TokenError(msg)
 
     return UUID(user_id)
