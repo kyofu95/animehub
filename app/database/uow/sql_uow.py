@@ -1,5 +1,6 @@
 import logging
 from types import TracebackType
+from typing import Self
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -24,7 +25,7 @@ class SQLUnitOfWork(BaseUnitOfWork):
         self.session_factory = session_factory
         self.session: AsyncSession | None = None
 
-    async def __aenter__(self) -> BaseUnitOfWork:
+    async def __aenter__(self) -> Self:
         """Enter the asynchronous context manager."""
         self.session = self.session_factory()
         self.anime_repository = AnimeSQLRepository(self.session)
