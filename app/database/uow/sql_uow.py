@@ -11,6 +11,8 @@ from app.database.repositories.anime_repository import AnimeSQLRepository
 from app.database.repositories.user_repository import UserSQLRepository
 from app.interface.uow.base_uow import BaseUnitOfWork
 
+logger = logging.getLogger(__name__)
+
 
 class SQLUnitOfWork(BaseUnitOfWork):
     """Implementation of Unit-of-Work using SQLAlchemy."""
@@ -53,7 +55,7 @@ class SQLUnitOfWork(BaseUnitOfWork):
 
         if isinstance(exc_value, SQLAlchemyError):
             if common_settings.debug:
-                logging.exception("A sqlalchemy exception has been occured and trapped inside UoW")
+                logger.exception("A sqlalchemy exception has been occured and trapped inside UoW")
             raise DatabaseError from exc_value
 
         return False
