@@ -18,7 +18,6 @@ class DatabaseError(BaseError):
     """
 
 
-
 class HashingError(BaseError):
     """This exception is raised when there's an issue with hashing or validation."""
 
