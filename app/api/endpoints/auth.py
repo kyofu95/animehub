@@ -1,4 +1,5 @@
-from typing import Annotated
+from collections.abc import Awaitable
+from typing import Annotated, Literal, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -45,9 +46,8 @@ async def get_tokens(user_data: FormData, service: UserServiceDep, redis: RedisD
         refresh_token = user_data.refresh_token
 
         # redis-py type hinting is borked, so we ignore it
-        # https://github.com/redis/redis-py/issues/2399
-
-        in_blacklist = await redis.sismember(TOKEN_BLACKLIST, refresh_token)  # type: ignore
+        redis_result = cast(Awaitable[Literal[0, 1]], redis.sismember(TOKEN_BLACKLIST, refresh_token))
+        in_blacklist = await redis_result
         if bool(in_blacklist):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -69,9 +69,7 @@ async def get_tokens(user_data: FormData, service: UserServiceDep, redis: RedisD
         old_refresh_token = user_data.refresh_token
 
         # redis-py type hinting is borked, so we ignore it
-        # https://github.com/redis/redis-py/issues/2399
-
-        await redis.sadd(TOKEN_BLACKLIST, old_refresh_token)  # type: ignore
+        await cast(Awaitable[int], redis.sadd(TOKEN_BLACKLIST, old_refresh_token))
 
     access_token = encode_token(user.id, "access")
     refresh_token = encode_token(user.id, "refresh")
