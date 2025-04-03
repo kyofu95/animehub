@@ -22,6 +22,18 @@ class OAuth2PasswordAndRefreshRequestForm(OAuth2PasswordRequestForm):
         client_id: str | None = Form(default=None),
         client_secret: str | None = Form(default=None),
     ) -> None:
+        """
+        Initialize the OAuth2PasswordAndRefreshRequestForm with additional support for refresh tokens.
+
+        Args:
+            grant_type (str): The OAuth2 grant type. Must be either "password" or "refresh_token".
+            username (str): The username for authentication. Defaults to an empty string.
+            password (str): The user's password for authentication. Defaults to an empty string.
+            refresh_token (str): The refresh token used to obtain a new access token. Defaults to an empty string.
+            scope (str): The scope of the authentication request. Defaults to an empty string.
+            client_id (str | None): The client identifier, if applicable. Defaults to None.
+            client_secret (str | None): The client secret, if applicable. Defaults to None.
+        """
         super().__init__(
             grant_type=grant_type,
             username=username,
