@@ -20,10 +20,16 @@ metadata = MetaData(
 mapper_registry = registry(metadata=metadata)
 
 genres_table = Table(
-    "genres", mapper_registry.metadata, Column("id", UUID, primary_key=True), Column("name", String, unique=True),
+    "genres",
+    mapper_registry.metadata,
+    Column("id", UUID, primary_key=True),
+    Column("name", String, unique=True),
 )
 studios_table = Table(
-    "studios", mapper_registry.metadata, Column("id", UUID, primary_key=True), Column("name", String, unique=True),
+    "studios",
+    mapper_registry.metadata,
+    Column("id", UUID, primary_key=True),
+    Column("name", String, unique=True),
 )
 franchises_table = Table(
     "franchises",
@@ -157,7 +163,10 @@ def start_mapper() -> None:
         user_table,
         properties={
             "watching_list": relationship(
-                watchlist_entity.WatchingEntry, back_populates="user", uselist=True, lazy="selectin",
+                watchlist_entity.WatchingEntry,
+                back_populates="user",
+                uselist=True,
+                lazy="selectin",
             ),
         },
     )
