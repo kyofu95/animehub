@@ -54,16 +54,18 @@ async def get_tokens(user_data: FormData, service: UserServiceDep, redis: RedisD
                 detail="Incorrect refresh token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        user = await get_current_user_from_refresh_token(token=refresh_token, user_service=service)
+        user_form_token = await get_current_user_from_refresh_token(token=refresh_token, user_service=service)
+        user_id = user_form_token.id
     else:
-        user = await service.get_by_login_auth(user_data.username, user_data.password)  # type: ignore
+        user = await service.get_by_login_auth(user_data.username, user_data.password)
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect login or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect login or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        user_id = user.id
 
     if user_data.grant_type == "refresh_token":
         old_refresh_token = user_data.refresh_token
@@ -71,7 +73,7 @@ async def get_tokens(user_data: FormData, service: UserServiceDep, redis: RedisD
         # redis-py type hinting is borked, so we ignore it
         await cast(Awaitable[int], redis.sadd(TOKEN_BLACKLIST, old_refresh_token))
 
-    access_token = encode_token(user.id, "access")
-    refresh_token = encode_token(user.id, "refresh")
+    access_token = encode_token(user_id, "access")
+    refresh_token = encode_token(user_id, "refresh")
 
     return TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
