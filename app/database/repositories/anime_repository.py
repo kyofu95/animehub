@@ -192,7 +192,11 @@ class AnimeSQLRepository(BaseAnimeRepository):
         return select_result.scalar_one()
 
     async def get_with_pagination(
-        self, include_genres: list[Genre] | None, excluded_genres: list[Genre] | None, skip: int = 0, limit: int = 10,
+        self,
+        include_genres: list[Genre] | None,
+        excluded_genres: list[Genre] | None,
+        skip: int = 0,
+        limit: int = 10,
     ) -> list[Anime]:
         """
         Retrieve a paginated list of Anime objects based on included and excluded genres.
