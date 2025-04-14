@@ -38,7 +38,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
 
 def init_logger() -> None:
     """Initialize and configure the application logger."""
-    logger = logging.getLogger("")
+    logger = logging.getLogger(__name__)
 
     formatter = logging.Formatter(
         "%(asctime)s [%(processName)s: %(process)d] [%(levelname)s] [%(correlation_id)s] %(name)s: %(message)s",
@@ -69,6 +69,7 @@ def install_exception_handlers(fast_app: FastAPI) -> None:
     Args:
         fast_app (FastAPI): The FastAPI application instance.
     """
+
     @fast_app.exception_handler(NotFoundError)
     async def not_found_exc(_: Request, exc: NotFoundError) -> JSONResponse:
         return JSONResponse(content={"detail": str(exc)}, status_code=status.HTTP_404_NOT_FOUND)
